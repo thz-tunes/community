@@ -29,6 +29,7 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:5500',  // VS Code Live Server (padrão)
       'http://127.0.0.1:5500',
+      "https://thz-tunes.github.io"
 
     ];
     // Em dev, permite qualquer origem sem header (ex: file:// ou Postman)
