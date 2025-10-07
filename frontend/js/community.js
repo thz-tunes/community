@@ -353,13 +353,19 @@ function fecharOverlayMuralEventos(event) {
 
 async function exibir_seminovos() {
     let container = document.getElementById("anuncios");
-
     container.innerHTML = "<p>Carregando anúncios...</p>";
 
     try {
+        console.log('Iniciando fetch para seminovos...');  // Debug
         const resposta = await fetch("https://community-production-f05d.up.railway.app/seminovos");
 
+        console.log('Status do fetch:', resposta.status);  // Debug: Deve ser 200
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status} - ${resposta.statusText}`);
+        }
+
         const anuncios = await resposta.json();
+        console.log('Anúncios recebidos:', anuncios.length);  // Debug
         var html = "";
         anuncios.forEach(anuncio => {
             const urlImg = anuncio.imagem ? `https://community-production-f05d.up.railway.app/uploads/${anuncio.imagem}` : 'caminho/para/imagem-padrao.png';
@@ -375,25 +381,25 @@ async function exibir_seminovos() {
                     <button type="button" aria-label="Saber mais sobre ${anuncio.nome}">Saber mais</button>
                 </div>
                 </div>
-    `;
+            `;
         });
-
-
-        container.innerHTML = html
-
+        container.innerHTML = html;
     } catch (err) {
-        container.innerHTML = "<p>Erro ao carregar anúncios...</p>";
+        console.error('Erro no fetch de seminovos:', err);  // Debug detalhado
+        container.innerHTML = "<p>Erro ao carregar anúncios: " + err.message + "</p>";
     }
-};
-
+}
 
 async function cadastrarAnuncio() {
     try {
-        // pega o arquivo
+        // Validação extra para arquivo
         const inputFile = document.getElementById("imagem-seminovo");
-        const arquivo = inputFile.files[0]; // pode ser undefined se não escolher
+        const arquivo = inputFile.files[0];
+        if (arquivo && arquivo.size > 5 * 1024 * 1024) {  // 5MB
+            alert("Arquivo muito grande! Máximo 5MB.");
+            return;
+        }
 
-        // cria FormData e adiciona os campos
         const form = new FormData();
         form.append("nome", document.getElementById("nome-seminovo").value);
         form.append("descricao", document.getElementById("descricao-seminovo").value);
@@ -403,25 +409,32 @@ async function cadastrarAnuncio() {
         form.append("id_categoria", document.getElementById("id_categoria-seminovo").value);
 
         if (arquivo) {
-            form.append("imagem", arquivo); // campo "imagem" => req.file no backend
+            form.append("imagem", arquivo);
         }
 
-        // Não coloque headers 'Content-Type' — o fetch detecta multipart automaticamente
-        const requisicao = await fetch("https://community-production-f05d.up.railway.app/register/seminovo", {
+        console.log('Iniciando fetch para cadastrar seminovo...');  // Debug
+        // CORREÇÃO: Rota certa é /seminovo/register
+        const requisicao = await fetch("https://community-production-f05d.up.railway.app/seminovo/register", {
             method: "POST",
             body: form
-            // se precisar de cookies: credentials: "include"
+            // credentials: "include" se precisar de auth
         });
 
-        if (!requisicao.ok) throw new Error("Erro ao cadastrar anuncio");
+        console.log('Status do fetch de cadastro:', requisicao.status);  // Debug: Deve ser 201
+        if (!requisicao.ok) {
+            const erroTexto = await requisicao.text();  // Pega corpo do erro
+            console.error('Erro no response:', erroTexto);
+            throw new Error(`Erro HTTP: ${requisicao.status} - ${requisicao.statusText}. Detalhes: ${erroTexto}`);
+        }
 
         const dados = await requisicao.json();
         alert(dados.mensagem || "Anúncio de seminovo inserido com sucesso...");
 
         document.getElementById("form-seminovo").reset();
-        await exibir_seminovos();
+        inputFile.value = '';  // Limpa o input de arquivo
+        await exibir_seminovos();  // Recarrega lista
     } catch (erro) {
-        console.error(erro)
+        console.error('Erro no fetch de cadastro:', erro);  // Debug
         alert("Falha ao cadastrar anúncio de seminovo: " + erro.message);
     }
 }
@@ -804,6 +817,11 @@ async function logar_usuario(event) {
         console.error('=== ERRO NO LOGIN (FRONTEND) ===');
         console.error('Mensagem:', erro.message);
         console.error('Stack:', erro.stack);
+        console.log('Status do login (se disponível):', requisicao ? requisicao.status : 'N/A');  // Debug extra
+        if (!requisicao || !requisicao.ok) {
+            const erroTexto = await requisicao.text().catch(() => 'Erro desconhecido');
+            console.error('Texto do erro no response:', erroTexto);
+        }
         showToast("Falha no login: " + erro.message, "error");
     } finally {
         button.classList.remove('loading');
