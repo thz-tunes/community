@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
     senha VARCHAR(255) NOT NULL
 );
 
-DROP Table usuarios;
 
 -- Tabela de Categorias de Esportes
 CREATE TABLE categorias_esportes (
