@@ -81,7 +81,7 @@ function destacarMenu(index, opcoesMenu) {
 let socket;  // Variável global para o socket
 function inicializarChatSocket() {
     // Conecta ao servidor Socket.io (ajuste a URL se o servidor for diferente)
-    socket = io('community-production-f05d.up.railway.app');
+    socket = io('https://community-production-f05d.up.railway.app');
     console.log('Socket.io inicializado e conectado.');
 
     // Listeners globais (ex: erros)
@@ -357,12 +357,12 @@ async function exibir_seminovos() {
     container.innerHTML = "<p>Carregando anúncios...</p>";
 
     try {
-        const resposta = await fetch("community-production-f05d.up.railway.app/seminovos");
+        const resposta = await fetch("https://community-production-f05d.up.railway.app/seminovos");
 
         const anuncios = await resposta.json();
         var html = "";
         anuncios.forEach(anuncio => {
-            const urlImg = anuncio.imagem ? `community-production-f05d.up.railway.app/uploads/${anuncio.imagem}` : 'caminho/para/imagem-padrao.png';
+            const urlImg = anuncio.imagem ? `https://community-production-f05d.up.railway.app/uploads/${anuncio.imagem}` : 'caminho/para/imagem-padrao.png';
             html += `
                 <div class="anuncio" role="region" aria-label="Anúncio de seminovo">
                 <div class="img-seminovo">
@@ -407,7 +407,7 @@ async function cadastrarAnuncio() {
         }
 
         // Não coloque headers 'Content-Type' — o fetch detecta multipart automaticamente
-        const requisicao = await fetch("community-production-f05d.up.railway.app/register/seminovo", {
+        const requisicao = await fetch("https://community-production-f05d.up.railway.app/register/seminovo", {
             method: "POST",
             body: form
             // se precisar de cookies: credentials: "include"
@@ -702,7 +702,7 @@ async function cadastrar_usuario(event) {
             senha
         };
 
-        const requisicao = await fetch("community-production-f05d.up.railway.app/user/register", {
+        const requisicao = await fetch("https://community-production-f05d.up.railway.app/user/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(usuario)
@@ -751,7 +751,7 @@ async function logar_usuario(event) {
 
     try {
         const usuario = { email, senha };
-        const url = "community-production-f05d.up.railway.app/user/login";
+        const url = "https://community-production-f05d.up.railway.app/user/login";
         console.log('Preparando fetch para URL:', url);
 
         const requisicao = await fetch(url, {
