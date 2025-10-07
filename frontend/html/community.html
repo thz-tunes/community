@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/community.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <title>SuperNova Community</title>
+</head>
+
+<body>
+
+    <div class="login-cadastro hidden"  id="login-cadastro" role="main">
+        <aside class="card">
+            <div class="brand">
+                <img src="" alt="Logo" />
+                <h2>Entrar na sua conta</h2>
+            </div>
+
+            <!-- Login -->
+            <form id="formulario-login" onsubmit="logar_usuario(event)" novalidate>
+                <input id="email-login" type="email" placeholder="E-mail" required />
+                <input id="password-login" type="password" placeholder="Senha" required />
+                <button type="submit">Entrar</button>
+                <p>Não possui conta? <a href="#" onclick="mostrarCadastro()">Cadastrar</a></p>
+            </form>
+
+            <!-- Cadastro -->
+            <form id="formulario-cadastro" class="oculto" onsubmit="cadastrar_usuario(event)" novalidate>
+                <input id="nome-cadastro" type="text" placeholder="Nome completo" required />
+                <input id="email-cadastro" type="email" placeholder="E-mail" required />
+                <input id="telefone-cadastro" type="tel" placeholder="Telefone (ex: (11) 99999-9999)" required />
+                <input id="data-nascimento-cadastro" type="date" placeholder="Data de nascimento" required />
+                <input id="password-cadastro" type="password" placeholder="Senha (mín. 8 caracteres)" required />
+                <input id="confirm-password-cadastro" type="password" placeholder="Confirme a senha" required />
+
+                <!-- Checkbox para Termos -->
+                <div class="checkbox-container">
+                    <input id="aceitar-termos" type="checkbox" required />
+                    <label for="aceitar-termos">
+                        Aceito os <a href="#" onclick="abrirTermos(event)">termos de uso</a> e política de privacidade.
+                    </label>
+                </div>
+
+                <button type="submit">Cadastrar</button>
+                <p>Já tem conta? <a href="#" onclick="mostrarLogin()">Entrar</a></p>
+            </form>
+        </aside>
+    </div>
+
+
+    <div class="comunidade hidden" id="comunidade">
+        <section class="conhecer chat active" role="region" aria-labelledby="comunidade-title">
+            <div class="header">
+
+                <h1 id="comunidade-title">Conheça a Comunidade</h1>
+            </div>
+
+            <div class="main" role="main">
+                <div class="img">
+                    <img src="../img/teste.jpg" alt="Pessoas se conectando em eventos esportivos e artísticos"
+                        class="header-image">
+                </div>
+
+                <article class="card-comunidade">
+                    <p>
+                        Nossa comunidade nasceu com o propósito de aproximar pessoas que compartilham a paixão pelo
+                        esporte
+                        e pela arte.
+                        Acreditamos que esses dois universos têm o poder de unir, inspirar e transformar.
+                    </p>
+
+                    <h2>O que oferecemos?</h2>
+                    <ul class="features-list">
+                        <li>Divulgação de eventos esportivos e artísticos para você participar e se inspirar.</li>
+                        <li>Espaço para compra e venda de produtos usados, promovendo economia circular e
+                            reaproveitamento.
+                        </li>
+                        <li>Chats abertos para trocas em tempo real e chats privados para negociações pessoais.</li>
+                    </ul>
+
+                    <h2>Nossa visão</h2>
+                    <p>
+                        Mais do que uma plataforma, buscamos ser um ponto de encontro inclusivo e democrático, onde cada
+                        voz
+                        importa.
+                        Nosso objetivo é fortalecer redes de contato, apoiar talentos locais e estimular atividades que
+                        promovam saúde, cultura e integração social.
+                    </p>
+
+                    <p>
+                        Estamos apenas no começo dessa jornada. Queremos ampliar parcerias, organizar eventos próprios e
+                        expandir para alcançar mais pessoas que acreditam no poder do esporte e da arte.
+                    </p>
+
+                    <p class="final">
+                        Seja bem-vindo(a). Aqui, você é parte essencial desse movimento.
+                    </p>
+
+                    <div class="cta-section">
+                        <a href="/chat" class="btn-junte-se" aria-label="Junte-se à comunidade agora">Junte-se à
+                            Comunidade</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+
+        <div class="chat-geral chat">
+            <div class="header">
+                <h1>Chat Geral</h1>
+            </div>
+            <div class="main" id="chat_aqui">
+                <!-- Mensagens serão adicionadas dinamicamente via JS (histórico e novas) -->
+            </div>
+            <div class="footer">
+                <img width="50" height="50" id="anexo" src="https://img.icons8.com/ios-filled/50/FFFFFF/attach.png"
+                    alt="attach" />
+                <div id="barra-mensagem">
+                    <input type="text" id="messageInput" placeholder="Digite sua mensagem" />
+                    <img width="50" height="50" id="emoji" src="https://img.icons8.com/ios/50/FFFFFF/happy.png"
+                        alt="happy" />
+                    <img width="50" height="50" id="audio"
+                        src="https://img.icons8.com/ios-filled/50/FFFFFF/microphone.png" alt="microphone" />
+                </div>
+                <img width="50" height="50" id="enviar"
+                    src="https://img.icons8.com/material-outlined/50/FFFFFF/sent.png" alt="sent" />
+            </div>
+        </div>
+
+
+
+
+        <div class="eventos chat ">
+            <div class="header">
+                <h1>Eventos</h1>
+                <nav>
+                    <button id="explica-eventos">Como Funciona</button>
+                    <button class="sair-lightbox hidden" id="sair-lightbox" onclick="esconderEventos()">Sair</button>
+                </nav>
+            </div>
+            <div class="main">
+                <div class="pesquisa-eventos" id="pesquisa-eventos">
+                    <img width="25" height="25" src="https://img.icons8.com/ios-filled/50/FFFFFF/search--v1.png"
+                        alt="search--v1" />
+                    <input type="text" id="pesquisa_eventos" placeholder="Procurar por eventos">
+
+                    <div class="filter">
+                        <button onclick="toggleFilter('local')">Local<img width="20" height="20"
+                                src="https://img.icons8.com/ios-filled/50/FFFFFF/back.png" alt="back" /></button>
+                        <button onclick="toggleFilter('data')">Data<img width="20" height="20"
+                                src="https://img.icons8.com/ios-filled/50/FFFFFF/back.png" alt="back" /></button>
+                        <button onclick="toggleFilter('preco')">Preço<img width="20" height="20"
+                                src="https://img.icons8.com/ios-filled/50/FFFFFF/back.png" alt="back" /></button>
+                        <button onclick="toggleFilter('categoria')">Categoria<img width="20" height="20"
+                                src="https://img.icons8.com/ios-filled/50/FFFFFF/back.png" alt="back" /></button>
+                    </div>
+
+                    <!-- Nova seção para opções de filtro expansível -->
+                    <div class="filter-options" id="filter-options">
+                        <div class="option-panel" id="local-options" style="display: none;">
+                            <h3>Opções de Local</h3>
+                            <ul>
+                                <li>
+                                    <input type="checkbox" id="local-rj11" value="rio-de-janeiro">
+                                    <label for="local-rj11">
+                                        <span>Rio de Janeiro</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="local-bs11" value="brasilia">
+                                    <label for="local-bs11">
+                                        <span>Brasília</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="local-sp11" value="sao-paulo"> <!-- Exemplo: ID único -->
+                                    <label for="local-sp11">
+                                        <span>São Paulo</span> <!-- Adicione mais opções assim -->
+                                    </label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="local-floripa" value="sao-paulo">
+                                    <!-- Exemplo: ID único -->
+                                    <label for="local-floripa">
+                                        <span>Floripa</span> <!-- Adicione mais opções assim -->
+                                    </label>
+                                </li>
+                                <!-- Adicione mais opções conforme necessário -->
+                            </ul>
+                        </div>
+                        <div class="option-panel" id="data-options" style="display: none;">
+                            <h3>Opções de Data</h3>
+                            <div class="date-inputs-container"> <!-- Classe para estilizar melhor, em vez de inline -->
+                                <label for="data-inicio">Data de Início:</label>
+                                <input type="date" id="data-inicio" placeholder="Selecione a data de início">
+                                <br>
+                                <label for="data-fim">Data de Fim:</label>
+                                <input type="date" id="data-fim" placeholder="Selecione a data de fim">
+                            </div>
+                            <!-- Ou use um seletor de calendário mais avançado, como Flatpickr ou Datepicker jQuery -->
+                        </div>
+                        <div class="option-panel" id="preco-options" style="display: none;">
+                            <h3>Opções de Preço</h3>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label for="preco-select">Faixa de Preço:</label>
+                                <select id="preco-select">
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="gratuito">Gratuito</option>
+                                    <option value="ate-50">Até R$50</option>
+                                    <option value="50-100">R$50 - R$100</option>
+                                    <option value="acima-100">Acima de R$100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="option-panel" id="categoria-options" style="display: none;">
+                            <h3>Opções de Categoria</h3>
+                            <ul>
+                                <li>
+                                    <input type="checkbox" id="cat-musica" value="musica"> <!-- Exemplo: ID único -->
+                                    <label for="cat-musica">
+                                        <span>Música</span> <!-- Adicione mais opções assim -->
+                                    </label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="cat-esportes" value="esportes">
+                                    <!-- Exemplo: ID único -->
+                                    <label for="cat-esportes">
+                                        <span>Esportes</span> <!-- Adicione mais opções assim -->
+                                    </label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="cat-cultura" value="cultura"> <!-- Exemplo: ID único -->
+                                    <label for="cat-cultura">
+                                        <span>Cultura</span> <!-- Adicione mais opções assim -->
+                                    </label>
+                                </li>
+
+
+                                <!-- Adicione mais opções conforme necessário -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="mural_eventos">
+                    <div class="header">
+                        <h1>Eventos em destaque</h1>
+                        <button class="underline" onclick="verEventos()" aria-label="Ver mais eventos">Ver Mais</button>
+                    </div>
+                    <div class="mostra_eventos">
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="Evento principal de esporte e arte"
+                                data-nome="Festival Esporte & Arte"
+                                data-descricao="Um dia cheio de atividades para todos." data-gratuito="Sim"
+                                data-preco="Grátis" data-endereco="Parque Central, Rio de Janeiro"
+                                data-data="15/10/2024" onclick="abrirOverlayMural(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="Torneio de Handebol"
+                                data-nome="Torneio de Handebol" data-descricao="Competição amadora com prêmios."
+                                data-gratuito="Não" data-preco="R$ 20" data-endereco="Ginásio Municipal, Brasília"
+                                data-data="20/11/2024" onclick="abrirOverlayMural(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.skate.png" alt="Competição de Skate" data-nome="Skate no Parque"
+                                data-descricao="Shows e competições para skatistas." data-gratuito="Sim"
+                                data-preco="Grátis" data-endereco="Praça Skate, São Paulo" data-data="05/12/2024"
+                                onclick="abrirOverlayMural(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.futebol.jpg" alt="Jogo de Futebol Amador" data-nome="Futebol Amador"
+                                data-descricao="Partida beneficente com times locais." data-gratuito="Não"
+                                data-preco="R$ 10" data-endereco="Estádio Municipal, Rio de Janeiro"
+                                data-data="10/01/2025" onclick="abrirOverlayMural(this)">
+                        </div>
+                    </div>
+                    <div class="overlay-mural-eventos" id="overlay-mural-eventos" role="dialog" aria-modal="true"
+                        aria-labelledby="evt-nome">
+                        <span class="fechar" onclick="fecharOverlayMuralEventos()"
+                            aria-label="Fechar overlay">&times;</span>
+                        <img src="" class="overlay-eventos-img" id="overlay-mural-eventos-img"
+                            alt="Imagem ampliada do evento" onclick="event.stopPropagation()">
+                        <div class="card-evento" onclick="event.stopPropagation()">
+                            <h2>Detalhes do Evento</h2>
+                            <div class="field">
+                                <div class="label">Nome</div>
+                                <div class="value" id="evt-nome">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Descrição</div>
+                                <div class="value text" id="evt-descricao">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Gratuito</div>
+                                <div class="value" id="evt-gratuito">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Preço</div>
+                                <div class="value" id="evt-preco">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Endereço</div>
+                                <div class="value text" id="evt-endereco">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Data do evento</div>
+                                <div class="value" id="evt-data">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="lightbox-eventos hidden" id="lightbox-eventos">
+                    <div class="lista-eventos" id="lista-eventos">
+
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.webp" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                        <div class="container img">
+                            <img src="../img/evento.handebol.jpg" alt="" onclick="abrirOverlay(this)">
+                        </div>
+                    </div>
+
+                    <div class="overlay-eventos" id="overlay-eventos" onclick="fecharOverlayEventos()">
+                        <span class="fechar">&times;</span>
+                        <img src="" class="overlay-eventos-img" id="overlay-eventos-img">
+                        <div class="card-evento">
+                            <h2>Detalhes do Evento</h2>
+
+                            <div class="field">
+                                <div class="label">Nome</div>
+                                <div class="value" id="evt-nome">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Descrição</div>
+                                <div class="value text" id="evt-descricao">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Gratuito</div>
+                                <div class="value" id="evt-gratuito">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Preço</div>
+                                <div class="value" id="evt-preco">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Endereço</div>
+                                <div class="value text" id="evt-endereco">—</div>
+                            </div>
+                            <div class="field">
+                                <div class="label">Data do evento</div>
+                                <div class="value" id="evt-data">—</div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="seminovos chat ">
+            <div class="header">
+                <h1>SemiNovos</h1>
+                <button onclick="solicitarAnuncio()">Anunciar Produto</button>
+
+                <div class="form-seminovo hidden" id="formulario-seminovo">
+                    <form id="form-seminovo">
+                        <img width="40" height="40"
+                            src="https://img.icons8.com/ios-filled/50/ff3b3b/delete-sign--v1.png" class="sair"
+                            onclick="esconderSolicitacao()" alt="delete-sign--v1" />
+                        <!-- <button type="button" onclick="window.location.href='index.html'" class="btn "></button> -->
+                        <label for="nome-seminovo">Nome do produto:</label><br>
+                        <input type="text" id="nome-seminovo" required><br><br>
+
+                        <label for="descricao-seminovo">Descrição:</label><br>
+                        <textarea id="descricao-seminovo" required></textarea><br><br>
+
+                        <label for="preco-seminovo">Preço (R$):</label><br>
+                        <input type="number" id="preco-seminovo" step="0.01" placeholder="0.00"><br><br>
+
+                        <label for="marca-seminovo">Marca:</label><br>
+                        <input type="text" id="marca-seminovo" required><br><br>
+
+                        <label for="email-seminovo">E-mail:</label><br>
+                        <input type="email" id="email-seminovo"><br><br>
+
+                        <label for="id_categoria-seminovo">Categoria:</label><br>
+                        <select id="id_categoria-seminovo" required>
+                            <option value="">Selecione...</option>
+                            <option value="1">Futebol</option>
+                            <option value="2">Vôlei</option>
+                            <option value="3">Basquete</option>
+                            <!-- Você pode carregar dinamicamente do banco -->
+                        </select><br><br>
+
+                        <label for="imagem-seminovo">Imagem do Produto</label>
+                        <input type="file" id="imagem-seminovo" accept="image/*">
+
+                        <button type="button" class="btn cadastro" onclick="cadastrarAnuncio()">Cadastrar</button>
+
+                    </form>
+                </div>
+
+
+            </div>
+
+            <div class="main">
+
+                <div class="anuncios" id="anuncios"></div>
+
+            </div>
+
+        </div>
+
+        <div class="sugestoes chat ">
+            <div class="header">
+                <h1>Sugestões</h1>
+            </div>
+            <div class="main">
+
+
+                <div class="card-sugestao" id="cardSugestao1">
+                    <h3>Sugestão para melhorar o sistema de notificações</h3>
+                    <p>Seria ótimo receber notificações personalizadas para cada tipo de evento, assim os usuários podem
+                        priorizar o que
+                        é mais importante para eles.</p>
+
+                    <div class="acoes">
+                        <button id="btnVotar-sugestoes">👍 Votar <span class="contador"
+                                id="contadorVotos-sugestoes">0</span></button>
+                        <button id="btnCurtir-sugestoes">❤️ Curtir <span class="contador"
+                                id="contadorCurtidas-sugestoes">0</span></button>
+                        <button id="btnComentar-sugestoes">💬 Comentar</button>
+                        <button id="btnEncaminhar-sugestoes">📤 Encaminhar</button>
+                    </div>
+
+                    <div class="comentarios" id="areaComentarios-sugestoes" style="display:none;">
+                        <div id="listaComentarios-sugestoes"></div>
+                        <div class="input-comentario">
+                            <input type="text" id="inputComentario-sugestoes" placeholder="Escreva um comentário..." />
+                            <button id="btnEnviarComentario-sugestoes">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <div class="contatos chat ">
+            <div class="header">
+                <h1>Contatos</h1>
+            </div>
+            <div class="main">
+
+
+
+            </div>
+            <div class="footer">
+                <img width="50" height="50" id="anexo" src="https://img.icons8.com/ios-filled/50/FFFFFF/attach.png"
+                    alt="attach" />
+                <div id="barra-mensagem">
+                    <input type="text" placeholder="Digite sua mensagem" />
+                    <img width="50" height="50" id="emoji" src="https://img.icons8.com/ios/50/FFFFFF/happy.png"
+                        alt="happy" />
+                    <img width="50" height="50" id="audio"
+                        src="https://img.icons8.com/ios-filled/50/FFFFFF/microphone.png" alt="microphone" />
+                </div>
+                <img width="50" height="50" id="enviar"
+                    src="https://img.icons8.com/material-outlined/50/FFFFFF/sent.png" alt="sent" />
+            </div>
+        </div>
+
+        <div class="menu">
+
+            <div class="header">
+
+            </div>
+
+            <div class="main">
+                <div id="barra-busca">
+                    <i class="fa fa-search"></i>
+                    <input type="text" placeholder="Buscar" />
+                </div>
+
+                <div class="conheca">
+                    <h1>COMECE POR AQUI</h1>
+                    <div class="opcao-chat" onclick="abrirChat(0)">
+                        <img width="50" height="50" src="https://img.icons8.com/ios/50/FFFFFF/conference-call.png"
+                            alt="conference-call" />
+                        <h2>Conheça a Comunidade</h2>
+                    </div>
+                </div>
+
+                <div class="pate-papos">
+                    <h1>COMUNIDADE</h1>
+                    <div class="opcao-chat" onclick="abrirChat(1)">
+                        <img width="50" height="50" src="https://img.icons8.com/parakeet-line/50/FFFFFF/chat.png"
+                            alt="chat" />
+                        <h2>Chat Geral</h2>
+                    </div>
+                    <div class="opcao-chat " onclick="abrirChat(2)">
+                        <img width="58" height="58"
+                            src="https://img.icons8.com/external-sbts2018-outline-sbts2018/58/FFFFFF/external-events-social-media-basic-1-sbts2018-outline-sbts2018.png"
+                            alt="external-events-social-media-basic-1-sbts2018-outline-sbts2018" />
+                        <h2>Eventos</h2>
+                    </div>
+                    <div class="opcao-chat" onclick="abrirChat(3)">
+                        <img width="32" height="32" src="https://img.icons8.com/windows/50/FFFFFF/refresh.png"
+                            alt="refresh" />
+                        <h2>SemiNovos</h2>
+                    </div>
+                    <div class="opcao-chat" onclick="abrirChat(4)">
+                        <img width="48" height="48"
+                            src="https://img.icons8.com/pulsar-line/48/FFFFFF/profitable-idea.png"
+                            alt="profitable-idea" />
+                        <h2>Sugestões</h2>
+                    </div>
+
+                </div>
+
+                <div class="pessoas">
+                    <h1>PESSOAS</h1>
+                    <div class="opcao-chat" onclick="abrirChat(5)">
+                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/FFFFFF/groups.png"
+                            alt="groups" />
+                        <h2>Contatos</h2>
+                    </div>
+                </div>
+
+            </div>
+            <div class="footer">
+                <div class="perfil">
+                    <div class="red-green"></div>
+                </div>
+                <div class="descricao">
+                    <h1 class="nome" id="nome-perfil">Miguelito Henry</h1>
+                    <h2 class="status" id="status-perfil">Online</h2>
+                </div>
+
+                <img width="50" height="50" id="settings" src="https://img.icons8.com/ios-filled/50/FFFFFF/settings.png"
+                    alt="settings" />
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Toast container -->
+    <div id="toast" class="toast"></div>
+
+
+    <!-- Novo: Script do Socket.io para comunicação em tempo real (carrega antes dos seus JS) -->
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+
+    <script src="../js/community.js"></script>
+    <script>exibir_seminovos()</script>
+</body>
+
+</html>
