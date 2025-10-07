@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
-  "main": "app.js",  
+  "main": "js/app.js",  
   "scripts": {
-    "start": "node app.js"  
+    "start": "node js/app.js"  
   },
   "keywords": [],
   "author": "",

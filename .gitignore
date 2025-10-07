@@ -2,4 +2,3 @@ node_modules/
 trash/
 package-lock.json
 tests/
-community/
