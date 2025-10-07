@@ -25,13 +25,15 @@ const io = new Server(server, {  // Usando new Server() para ES Modules
 // CORS Configurado Explicitamente (CORREÇÃO: Substitui app.use(cors()); para resolver bloqueio no frontend)
 app.use(cors({
   origin: function (origin, callback) {
+
     // Defina origens permitidas (ajuste para o seu frontend)
     const allowedOrigins = [
       'http://localhost:5500',  // VS Code Live Server
       'http://127.0.0.1:5500',
       'http://thz-tunes.github.io',   // Adicionado: Versão HTTP do GitHub Pages para compatibilidade
       'https://thz-tunes.github.io',  // Frontend de produção (já existente)
-    ];
+    ]
+    
     // Em dev, permite qualquer origem sem header (ex: file:// ou Postman)
     if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
