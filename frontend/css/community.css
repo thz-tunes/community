@@ -1,0 +1,2320 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+}
+
+:root {
+    --fundo: #0f1724;
+    /* Fundo principal */
+    --cartao: #0b1220;
+    /* Fundo dos cards e formulários */
+    --muted: #98a0b3;
+    /* Texto secundário */
+    --destaque: #06b6d4;
+    /* Cor de destaque / acento */
+    --destaque-escuro: #008080;
+    /* Versão mais escura do destaque */
+    --texto: #f0f0f0;
+    /* Texto principal */
+    --borda: #333;
+    /* Bordas */
+    --hover: #252525;
+    /* Hover em inputs e botões */
+    --erro: #ff3b3b;
+    /* Erros / alerta */
+    --erro-escuro: #a01f1f;
+    /* Hover de erro */
+}
+
+body,
+html {
+    height: 100%;
+    overflow-y: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Opcional: Transição suave para aparecer/desaparecer */
+.login-cadastro,
+#comunidade {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#comunidade.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+}
+#comunidade:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.underline:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+    text-decoration: underline;
+    transition: 0.7s;
+}
+
+/* Toast Simples (adicione ao final do CSS) */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: var(--texto);
+    font-size: 18px;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success {
+    background-color: var(--destaque);
+}
+
+.toast.error {
+    background-color: var(--erro);
+}
+
+
+/* Estilos Gerais para o Container Principal (.login-cadastro) - Full-Screen */
+.login-cadastro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    /* Largura total da viewport */
+    height: 100vh;
+    /* Altura total da viewport */
+    background-color: var(--cartao);
+    /* Gradiente sutil para imersão na tela inteira */
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Fonte moderna e limpa */
+    color: var(--texto);
+    overflow: hidden;
+    /* Evita scroll desnecessário na tela inteira */
+    position: relative;
+    /* Para possíveis overlays futuros */
+}
+
+.login-cadastro[role="main"] {
+    width: 100%;
+    max-width: none;
+    /* Remove limitação anterior para full-screen */
+}
+
+/* Esconde TODOS os checkboxes customizados (agora geral, não só em .option-panel) */
+.login-cadastro .card .formulario-cadastro .checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+/* Estilo da label que vem após o input */
+.login-cadastro .card .formulario-cadastro .checkbox-container input[type="checkbox"]+label {
+    position: relative;
+    padding-left: 35px;
+    /* Espaço para o ::before */
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+    color: var(--cartao);
+    display: block;
+    /* Garante que a label ocupe espaço */
+}
+
+/* Quadrado falso (não marcado) */
+.login-cadastro .card .formulario-cadastro .checkbox-container input[type="checkbox"]+label::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #222;
+    transition: all 0.3s ease;
+    border: 2px solid #444;
+    /* Adicionei borda para visibilidade melhor, opcional */
+}
+
+/* Quando marcado: muda fundo e adiciona checkmark */
+.login-cadastro .card .formulario-cadastro .checkbox-container input[type="checkbox"]:checked+label::before {
+    background: var(--fundo);
+    /* Verde, assumindo --fundo = verde */
+    border-color: var(--fundo);
+    content: "✔";
+    /* Checkmark */
+    font-size: 16px;
+    color: var(--destaque);
+    /* Cor do ✔, ex: branco */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilos do Card Principal (.card) - Ajustado para Mais Espaço na Tela */
+.login-cadastro .card {
+    background-color: var(--cartao);
+    border-radius: 16px;
+    /* Bordas mais arredondadas para tela grande */
+    padding: 40px;
+    /* Padding maior para ocupar mais espaço */
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    /* Sombra mais pronunciada para destaque na tela inteira */
+    border: 1px solid var(--borda);
+    width: 100%;
+    max-width: 500px;
+    /* Aumentado para 500px em desktop, ocupando mais da tela */
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    /* Transição suave para hover no card */
+}
+
+.login-cadastro .card:hover {
+    box-shadow: 0 16px 56px rgba(6, 182, 212, 0.15);
+    /* Sombra expandida com destaque no hover */
+    transform: scale(1.02);
+    /* Leve escala para interatividade na tela grande */
+}
+
+/* Estilos da Seção Brand (.brand) */
+.login-cadastro .card .brand {
+    text-align: center;
+    margin-bottom: 28px;
+    /* Margem maior para tela inteira */
+}
+
+.login-cadastro .card .brand img {
+    width: 70px;
+    /* Ícone maior para tela grande */
+    height: 70px;
+    border-radius: 50%;
+    /* Circular para logo */
+    background-color: var(--destaque);
+    /* Fallback se src vazio */
+    display: inline-block;
+    margin-bottom: 16px;
+    transition: transform 0.3s ease;
+}
+
+.login-cadastro .card .brand img:hover {
+    transform: scale(1.05);
+    /* Leve zoom no hover */
+}
+
+/* Fallback SVG para logo se src vazio (ícone simples de usuário) */
+.login-cadastro .card .brand img[src=""] {
+    background: none;
+    padding: 18px;
+    /* Padding maior para tela inteira */
+}
+
+.login-cadastro .card .brand img[src=""]::before {
+    content: "👤";
+    /* Emoji como placeholder; substitua por SVG real se preferir */
+    font-size: 28px;
+    /* Maior para tela grande */
+    line-height: 1;
+}
+
+.login-cadastro .card .brand h2 {
+    color: var(--texto);
+    font-size: 28px;
+    /* Fonte maior para tela inteira */
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    /* Sombra sutil no texto */
+}
+
+/* Estilos Gerais dos Formulários (form dentro de .card) - Ajustado para Cadastro Expandido */
+.login-cadastro .card form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    /* Gap ajustado para acomodar mais campos no cadastro */
+}
+
+/* Estilos dos Inputs Gerais (input dentro de form) */
+.login-cadastro .card form input {
+    padding: 16px 20px;
+    /* Padding maior para tela grande */
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+    /* Bordas mais arredondadas */
+    background-color: var(--fundo);
+    color: var(--texto);
+    font-size: 16px;
+    transition: all 0.3s ease;
+    /* Transição para border, box-shadow e background */
+    outline: none;
+    /* Remove outline padrão */
+}
+
+.login-cadastro .card form input::placeholder {
+    color: var(--muted);
+    /* Placeholder muted */
+}
+
+.login-cadastro .card form input:hover {
+    background-color: var(--hover);
+    /* Fundo mais claro no hover */
+    border-color: var(--destaque-escuro);
+}
+
+.login-cadastro .card form input:focus {
+    border-color: var(--destaque);
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.25);
+    /* Anel de foco maior */
+    background-color: var(--fundo);
+}
+
+/* Estilos Específicos para Novos Inputs (telefone e data de nascimento) */
+.login-cadastro .card form input[type="tel"],
+.login-cadastro .card form input[type="date"] {
+    padding: 16px 20px;
+    /* Mesmo padding dos outros inputs */
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+    background-color: var(--fundo);
+    color: var(--texto);
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.login-cadastro .card form input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+    /* Inverte cores para tema escuro no seletor de data */
+}
+
+.login-cadastro .card form input[type="tel"]::placeholder,
+.login-cadastro .card form input[type="date"]::placeholder {
+    color: var(--muted);
+}
+
+/* Estado de Erro nos Inputs (adicione classe 'erro' via JS se validação falhar) */
+.login-cadastro .card form input.erro {
+    border-color: var(--erro);
+    box-shadow: 0 0 0 4px rgba(255, 59, 59, 0.25);
+}
+
+.login-cadastro .card form input.erro:hover {
+    border-color: var(--erro-escuro);
+}
+
+/* Estilos dos Botões Submit (button dentro de form) */
+.login-cadastro .card form button {
+    padding: 16px 20px;
+    /* Padding maior para tela grande */
+    background-color: var(--destaque);
+    color: var(--texto);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* Transição para background, transform e box-shadow */
+    position: relative;
+    overflow: hidden;
+}
+
+.login-cadastro .card form button:hover {
+    background-color: var(--destaque-escuro);
+    transform: translateY(-2px);
+    /* Eleva mais no hover para tela grande */
+    box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35);
+}
+
+.login-cadastro .card form button:focus {
+    outline: 2px solid var(--destaque);
+    outline-offset: 2px;
+}
+
+.login-cadastro .card form button:active {
+    transform: translateY(0);
+    /* Volta ao normal no clique */
+}
+
+/* Estado de Loading nos Botões (adicione classe 'loading' via JS durante submit) */
+.login-cadastro .card form button.loading {
+    pointer-events: none;
+    /* Desabilita cliques */
+    opacity: 0.8;
+}
+
+.login-cadastro .card form button.loading::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    /* Spinner maior para tela inteira */
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--texto);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estilos dos Parágrafos e Links (p e a dentro de form) */
+.login-cadastro .card form p {
+    text-align: center;
+    margin: 20px 0 0 0;
+    /* Margem maior para tela inteira */
+    color: var(--muted);
+    font-size: 15px;
+    /* Fonte ligeiramente maior */
+}
+
+.login-cadastro .card form a {
+    color: var(--destaque);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.login-cadastro .card form a:hover,
+.login-cadastro .card form a:focus {
+    color: var(--destaque-escuro);
+    text-decoration: underline;
+    outline: none;
+}
+
+/* Classe para Formulário Oculto (.oculto) */
+.login-cadastro .card form.oculto {
+    display: none;
+}
+
+/* Estilos para Checkbox Container (.checkbox-container) - Novo para Cadastro Expandido */
+.login-cadastro .card .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 8px 0;
+    /* Margem interna para separar do resto */
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.login-cadastro .card .checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    /* Remove margem padrão */
+    accent-color: var(--destaque);
+    /* Cor do checkbox checked (azul destaque) */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-cadastro .card .checkbox-container input[type="checkbox"]:hover {
+    transform: scale(1.1);
+    /* Leve escala no hover */
+}
+
+.login-cadastro .card .checkbox-container label {
+    margin: 0;
+    cursor: pointer;
+    line-height: 1.4;
+    flex: 1;
+    /* Ocupa o espaço restante */
+}
+
+.login-cadastro .card .checkbox-container label a {
+    color: var(--destaque);
+    text-decoration: underline dotted;
+    /* Underline pontilhado para link de termos */
+    transition: color 0.3s ease;
+}
+
+.login-cadastro .card .checkbox-container label a:hover,
+.login-cadastro .card .checkbox-container label a:focus {
+    color: var(--destaque-escuro);
+}
+
+/* Estado de Erro para Checkbox (adicione classe 'erro' via JS se não marcado) */
+.login-cadastro .card .checkbox-container.erro {
+    color: var(--erro);
+    border: 1px solid var(--erro);
+    /* Borda sutil no container se erro */
+    border-radius: 6px;
+    padding: 4px;
+}
+
+/* Animações de Fade para Alternância de Formulários (.fade-in e .fade-out) */
+.login-cadastro .card form.fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+    /* Animação um pouco mais lenta para tela grande */
+}
+
+.login-cadastro .card form.fade-out {
+    animation: fadeOut 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+}
+
+/* Responsividade para Mobile e Telas Médias (media queries para adaptação full-screen e novos campos) */
+@media (max-width: 768px) {
+    .login-cadastro {
+        padding: 10px;
+        /* Padding menor em mobile para maximizar espaço */
+    }
+
+    .login-cadastro .card {
+        padding: 30px;
+        /* Padding ajustado para mobile */
+        margin: 0;
+        /* Sem margens extras */
+        max-width: none;
+        /* Full-width em mobile */
+        width: 100%;
+        border-radius: 12px;
+        /* Bordas menores em mobile */
+    }
+
+    .login-cadastro .card .brand h2 {
+        font-size: 24px;
+        /* Fonte menor em mobile */
+    }
+
+    .login-cadastro .card form {
+        gap: 16px;
+        /* Gap menor em mobile para caber mais campos */
+    }
+
+    .login-cadastro .card form input,
+    .login-cadastro .card form button {
+        padding: 14px 18px;
+        /* Touch target bom para mobile */
+    }
+
+    .login-cadastro .card .checkbox-container {
+        flex-direction: column;
+        /* Empilha checkbox e label em mobile para melhor legibilidade */
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .login-cadastro .card .checkbox-container label {
+        font-size: 13px;
+        /* Fonte menor em mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .login-cadastro .card {
+        padding: 24px;
+        /* Ainda menor em telas muito pequenas */
+    }
+
+    .login-cadastro .card .brand img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .login-cadastro .card .brand h2 {
+        font-size: 22px;
+    }
+
+    .login-cadastro .card form input,
+    .login-cadastro .card form button {
+        padding: 12px 16px;
+        /* Ajuste fino para telas muito pequenas */
+    }
+}
+
+
+.chat {
+    background-color: var(--fundo);
+    height: 100vh;
+    width: 80%;
+    position: absolute;
+    right: 0;
+    border-left: 2px solid var(--texto);
+    display: none;
+}
+
+.chat.active {
+    display: block;
+}
+
+.chat .header {
+    width: 100%;
+    height: 10%;
+}
+
+.chat .main {
+    border-top: 1px solid var(--texto);
+}
+
+.chat .footer {
+    width: 100%;
+    height: 8%;
+    background-color: var(--cartao);
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.chat .footer #barra-mensagem {
+    background-color: var(--hover);
+    width: 80%;
+    height: 60%;
+    margin-top: 12px;
+    border-radius: 20px;
+    display: flex;
+    justify-items: center;
+    padding: 10px 15px;
+}
+
+.chat .footer #barra-mensagem input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 20px;
+    color: var(--texto);
+    width: 100%;
+}
+
+.chat .footer #barra-mensagem img {
+    width: 30px;
+    height: 30px;
+    margin-top: -4px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.chat .footer #anexo {
+    position: relative;
+    top: 12px;
+    left: 80px;
+    width: 40px;
+    height: 40px;
+}
+
+.chat .footer #enviar {
+    position: relative;
+    top: 12px;
+    right: 80px;
+    width: 40px;
+    height: 40px;
+}
+
+.chat .header h1 {
+    color: var(--texto);
+    font-size: 35px;
+    padding: 22px 50px;
+}
+
+.menu {
+    width: 20%;
+}
+
+.menu .main {
+    background-color: var(--fundo);
+    width: 100%;
+    height: 82vh;
+    color: var(--texto);
+    padding: 0 15px;
+}
+
+.menu .header {
+    background-color: var(--cartao);
+    width: 100%;
+    height: 10vh;
+}
+
+.menu .footer {
+    background-color: var(--cartao);
+    width: 100%;
+    height: 8vh;
+}
+
+#barra-busca {
+    display: flex;
+    color: var(--texto);
+    align-items: center;
+    justify-content: center;
+}
+
+#barra-busca input {
+    margin-top: 10px;
+    width: 80%;
+    border: none;
+    outline: none;
+    padding: 8px 15px 8px 40px;
+    background-color: var(--hover);
+    color: var(--texto);
+    border-radius: 25px;
+}
+
+#barra-busca input::placeholder {
+    color: var(--texto);
+    opacity: 0.79;
+    /* equivalente a #ffffffc9 */
+}
+
+#barra-busca i {
+    position: relative;
+    top: 5px;
+    left: 30px;
+}
+
+.menu .main h1 {
+    font-size: 23px;
+    padding-bottom: 5px;
+}
+
+.conheca,
+.pate-papos,
+.pessoas {
+    margin-top: 30px;
+}
+
+.opcao-chat {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+/* NOVO: Estilo para o item ATIVO no menu */
+.opcao-chat.active {
+    background-color: var(--destaque-escuro);
+    /* Fundo azul claro (seu --destaque: #06b6d4) */
+    box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+    /* Sombra sutil com cor de destaque */
+    transform: translateX(5px);
+    /* Slide permanente para o ativo */
+    border-left: 4px solid var(--destaque-escuro);
+    /* Borda esquerda para destaque extra */
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.opcao-chat.active h2 {
+    color: var(--texto);
+    /* Garante que o texto do título fique legível */
+    font-weight: bold;
+    /* Negrito no ativo */
+}
+
+
+/* Responsividade: Em mobile, ajuste o destaque */
+@media (max-width: 600px) {
+    .opcao-chat.active {
+        border-left-width: 3px;
+        /* Borda menor em mobile */
+        padding: 8px;
+    }
+}
+
+.pate-papos {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pate-papos h1 {
+    margin-bottom: -10px;
+}
+
+.opcao-chat img {
+    width: 30px;
+    height: 30px;
+}
+
+.opcao-chat h2 {
+    font-size: 20px;
+    margin-left: 10px;
+    color: var(--texto);
+}
+
+.menu .footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu .footer .perfil {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid var(--texto);
+    background-image: url("../img/felpo.jpg");
+    background-position: center;
+    background-size: cover;
+}
+
+.menu .footer .perfil .red-green {
+    width: 13px;
+    height: 13px;
+    background-color: rgb(153, 255, 0);
+    border-radius: 50%;
+    position: relative;
+    top: 40px;
+}
+
+.menu .footer .descricao {
+    color: var(--texto);
+    font-size: 9px;
+    margin-left: 15px;
+}
+
+.menu .footer .descricao h1 {
+    margin-bottom: 8px;
+}
+
+.menu .footer .descricao h2 {
+    color: rgb(165, 245, 128);
+}
+
+.menu .footer #settings {
+    width: 40px;
+    height: 40px;
+    margin-left: 90px;
+    cursor: pointer;
+}
+
+.conhecer.chat {
+    background: var(--fundo);
+    color: var(--texto);
+    padding: 2rem;
+    /* Use rem para escalabilidade (32px em font 16px) */
+    animation: fadeIn 0.8s ease-out;
+    /* Animação de entrada suave */
+}
+
+.conhecer.chat .header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.conhecer.chat .header-image {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    /* Sombra sutil na imagem */
+}
+
+.conhecer.chat .header h1 {
+    color: var(--destaque);
+    font-size: 2rem;
+    /* 32px, escalável */
+    margin: 0 0 1rem 0;
+}
+
+.conhecer.chat .main {
+    display: flex;
+    justify-content: center;
+}
+
+.conhecer.chat .main .img {
+    margin-top: 4%;
+}
+
+.conhecer.chat .card-comunidade {
+    margin-top: 4%;
+    background: var(--cartao);
+    padding: 1.5rem;
+    /* 24px */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    max-width: 900px;
+    width: 100%;
+    line-height: 1.7;
+    /* Aumentei para melhor leitura */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Hover suave */
+}
+
+.conhecer.chat .card-comunidade:hover {
+    transform: translateY(-2px);
+    /* Levanta levemente no hover */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.conhecer.chat .card-comunidade h2 {
+    color: var(--destaque);
+    font-size: 1.5rem;
+    /* 24px */
+    margin: 2rem 0 1rem 0;
+    border-bottom: 2px solid var(--hover);
+    /* Linha sutil abaixo do subtítulo */
+    padding-bottom: 0.5rem;
+}
+
+.conhecer.chat .card-comunidade h2:first-of-type {
+    margin-top: 1rem;
+    /* Sem margem no primeiro */
+}
+
+.conhecer.chat .card-comunidade .cta-section {
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+}
+
+.conhecer.chat .card-comunidade .cta-section .btn-junte-se {
+    background-color: var(--fundo);
+    color: var(--texto);
+    text-decoration: none;
+    padding: 5px 20px;
+    font-size: 20px;
+    border-radius: 15px;
+    box-shadow: 1px 1px 5px var(--destaque-escuro);
+}
+
+.conhecer.chat .card-comunidade .cta-section .btn-junte-se:hover {
+    box-shadow: 3px 3px 7px var(--destaque);
+    font-weight: 700;
+
+    transition: 0.6s;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.eventos.chat .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 80px;
+}
+
+.eventos.chat .header nav {
+    display: flex;
+    gap: 20px;
+}
+
+.eventos.chat .header nav button {
+    font-size: 17px;
+    font-weight: 700;
+    background-color: var(--cartao);
+    color: var(--texto);
+    border: none;
+    outline: none;
+    padding: 4px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.eventos.chat .header nav button:hover {
+    background-color: var(--hover);
+    transition: 0.4s;
+}
+
+.eventos.chat .main .pesquisa-eventos {
+    margin: 50px auto;
+    width: 500px;
+    min-height: 120px;
+    /* Mudei de height fixa para min-height para permitir expansão */
+    border-radius: 15px;
+    background-color: var(--hover);
+    position: relative;
+    /* precisa ser relative ou absolute */
+    top: 0px;
+    /* posição inicial */
+    transition: top 0.6s ease, min-height 0.6s ease;
+    /* Adicionei transição para min-height */
+    overflow: hidden;
+    /* Para esconder o conteúdo durante a expansão */
+}
+
+.eventos.chat .main .pesquisa-eventos.topo {
+    top: -120px;
+    /* vai pro topo */
+    min-height: 290px;
+    /* Ajustado para caber mais itens */
+    /* Altura expandida quando topo é ativado - ajuste conforme o conteúdo */
+}
+
+
+
+.eventos.chat .main .pesquisa-eventos input {
+    width: 97%;
+    height: 30px;
+    outline: none;
+    border: none;
+    padding-left: 40px;
+    font-size: 18px;
+    margin-top: 20px;
+    margin-left: 1.5%;
+    border-radius: 15px;
+    background-color: var(--cartao);
+    color: var(--texto);
+}
+
+.eventos.chat .main .pesquisa-eventos .filter {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter button {
+    padding: 5px 10px;
+    font-size: 17px;
+    font-weight: 700;
+    background-color: var(--fundo);
+    color: var(--texto);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    outline: none;
+    border: none;
+    position: relative;
+    /* Para posicionar o ícone */
+}
+
+.eventos.chat .main .pesquisa-eventos .filter button:hover {
+    transform: scale(1.1);
+}
+
+.eventos.chat .main .pesquisa-eventos .filter button img {
+    transform: rotate(-90deg);
+    position: relative;
+    top: 4px;
+    left: 4px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    /* Transição para rotação do ícone */
+}
+
+.eventos.chat .main .pesquisa-eventos .filter button.active img {
+    transform: rotate(0deg);
+    /* Quando ativo, gira para indicar "fechado" ou seta para cima */
+}
+
+.eventos.chat .main .pesquisa-eventos .filter img:hover button {
+    transform: scale(1.1);
+}
+
+.eventos.chat .main .pesquisa-eventos>img {
+    position: absolute;
+    top: 22px;
+    left: 15px;
+}
+
+/* Estilos para a seção de opções expansível */
+.eventos.chat .main .pesquisa-eventos .filter-options {
+    margin-top: 20px;
+    padding: 0 20px;
+    transition: all 0.6s ease;
+    background-color: var(--fundo);
+    /* Fundo ligeiramente diferente para destacar */
+    border-top: 1px solid var(--hover);
+    outline: 5px solid var(--hover);
+    outline-offset: -4px;
+    /* negativo joga pra dentro */
+    text-align: center;
+    max-height: 160px;
+    overflow-y: scroll;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options::-webkit-scrollbar-track {
+    background: var(--cartao);
+    border-radius: 8px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options::-webkit-scrollbar-thumb {
+    background-color: var(--destaque);
+    border-radius: 8px;
+    border: 2px solid var(--cartao);
+}
+
+
+.eventos.chat .main .pesquisa-eventos .filter-options .option-panel {
+    padding: 15px 0;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options h3 {
+    margin-bottom: 10px;
+    color: var(--texto);
+    font-size: 20px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options ul li {
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options label,
+.eventos.chat .main .pesquisa-eventos .filter-options ul li span {
+    color: var(--texto);
+    padding-top: 3px;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="date"],
+.eventos.chat .main .pesquisa-eventos .filter-options select {
+    padding: 10px;
+    /* Adicionei padding para mais espaço interno */
+    border: 2px solid #444;
+    /* Borda visível (escura para combinar com seu tema) */
+    border-radius: 6px;
+    /* Arredondado, como nos checkboxes */
+    background: #222;
+    /* Fundo escuro, assumindo tema dark */
+    color: var(--texto);
+    /* Cor do texto */
+    font-size: 16px;
+    width: 100%;
+    /* Ocupa a largura disponível na coluna */
+    max-width: 250px;
+    /* Limite para não esticar demais */
+    margin-bottom: 0;
+    /* Remove margem inferior desnecessária */
+    transition: border-color 0.3s ease;
+    /* Transição suave no foco */
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="date"]:focus,
+.eventos.chat .main .pesquisa-eventos .filter-options select:focus {
+    outline: none;
+    /* Remove outline padrão */
+    border-color: var(--hover);
+    /* Borda muda para cor de hover no foco */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    /* Sombra sutil, ajuste a cor */
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options select {
+    margin: auto;
+}
+
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="date"] {
+    accent-color: var(--hover);
+    /* Cor das setas e picker (se suportado) */
+}
+
+/* Placeholder (limitado em date, mas funciona como texto padrão em alguns browsers) */
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="date"]::placeholder {
+    color: #666;
+    /* Cor mais clara para o placeholder */
+    opacity: 1;
+}
+
+/* Esconde TODOS os checkboxes customizados (agora geral, não só em .option-panel) */
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="checkbox"] {
+    display: none;
+}
+
+/* Estilo da label que vem após o input */
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="checkbox"]+label {
+    position: relative;
+    padding-left: 35px;
+    /* Espaço para o ::before */
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+    color: var(--cartao);
+    display: block;
+    /* Garante que a label ocupe espaço */
+}
+
+/* Quadrado falso (não marcado) */
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="checkbox"]+label::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #222;
+    transition: all 0.3s ease;
+    border: 2px solid #444;
+    /* Adicionei borda para visibilidade melhor, opcional */
+}
+
+/* Quando marcado: muda fundo e adiciona checkmark */
+.eventos.chat .main .pesquisa-eventos .filter-options input[type="checkbox"]:checked+label::before {
+    background: var(--fundo);
+    /* Verde, assumindo --fundo = verde */
+    border-color: var(--fundo);
+    content: "✔";
+    /* Checkmark */
+    font-size: 16px;
+    color: var(--destaque);
+    /* Cor do ✔, ex: branco */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+.eventos.chat .main .mural_eventos {
+    width: 100%;
+}
+
+.eventos.chat .main .mural_eventos .header {
+    position: absolute;
+    bottom: 520px;
+}
+
+.eventos.chat .main .mural_eventos .header h1 {
+    font-size: 24px;
+    color: var(--texto);
+}
+
+.eventos.chat .header .sair-lightbox {
+    background-color: var(--erro-escuro);
+}
+
+.eventos.chat .header .sair-lightbox:hover {
+    background-color: var(--erro);
+}
+
+.eventos.chat .main .mural_eventos .mostra_eventos {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    position: absolute;
+    bottom: 50px;
+}
+
+.eventos.chat .main .mural_eventos .mostra_eventos .container {
+    width: 320px;
+    height: 500px;
+    cursor: pointer;
+}
+
+.eventos.chat .main .mural_eventos .mostra_eventos .container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+}
+
+.eventos.chat .main .lightbox-eventos {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 90px;
+    background-color: rgba(15, 23, 36, 0.83);
+    /* var(--fundo) com opacidade */
+    overflow-y: scroll;
+    padding-bottom: 80px;
+}
+
+.eventos.chat .main .lightbox-eventos .lista-eventos {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 50px;
+    grid-gap: 20px;
+}
+
+.eventos.chat .main .lightbox-eventos .lista-eventos .container {
+    padding-right: 7px;
+    padding-bottom: 2px;
+    border-radius: 20px;
+}
+
+.eventos.chat .main .lightbox-eventos .lista-eventos .container img {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.eventos.chat .main .lightbox-eventos .lista-eventos .container:hover {
+    background-color: var(--destaque-escuro);
+    box-shadow: 1px 2px 7px var(--destaque);
+    transition: 0.5s;
+}
+
+.eventos.chat .main .lightbox-eventos::-webkit-scrollbar {
+    width: 8px;
+}
+
+.eventos.chat .main .lightbox-eventos::-webkit-scrollbar-track {
+    background: var(--cartao);
+    border-radius: 8px;
+}
+
+.eventos.chat .main .lightbox-eventos::-webkit-scrollbar-thumb {
+    background-color: var(--destaque);
+    border-radius: 8px;
+    border: 2px solid var(--cartao);
+}
+
+
+.eventos.chat .main .lightbox-eventos .overlay-eventos {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 36, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.eventos.chat .main .lightbox-eventos .overlay-eventos .overlay-eventos-img {
+    max-width: 80%;
+    max-height: 80%;
+    border-radius: 10px;
+}
+
+.eventos.chat .main .lightbox-eventos .overlay-eventos .fechar {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    font-size: 30px;
+    color: var(--texto);
+    cursor: pointer;
+}
+
+/* Overlay principal */
+.eventos.chat .main .overlay-mural-eventos {
+    display: none;
+    position: fixed;
+    inset: 0;
+    /* Equivalente a top:0; left:0; right:0; bottom:0; — mais moderno e responsivo */
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 36, 0.8);
+    /* Fundo escuro semi-transparente */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Garante que fique por cima de outros elementos */
+    transition: opacity 0.3s ease;
+    /* Fade suave ao abrir/fechar */
+    opacity: 0;
+    /* Inicialmente invisível para animação */
+}
+
+/* Quando visível (após JS mudar display para flex) */
+.eventos.chat .main .overlay-mural-eventos[style*="display: flex"] {
+    opacity: 1;
+}
+
+/* Imagem ampliada no overlay */
+.eventos.chat .main .overlay-mural-eventos .overlay-eventos-img {
+    max-width: 80%;
+    max-height: 80%;
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+    /* Garante centralização */
+    object-fit: cover;
+    /* Mantém proporção sem distorção; corta se necessário */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    /* Sombra para destaque */
+    cursor: zoom-out;
+    /* Indica que pode fechar clicando (opcional) */
+    transition: transform 0.3s ease;
+    /* Zoom sutil no hover, se quiser */
+}
+
+.eventos.chat .main .overlay-mural-eventos .overlay-eventos-img:hover {
+    transform: scale(1.02);
+    /* Leve zoom no hover */
+}
+
+/* Botão fechar (X) */
+.eventos.chat .main .overlay-mural-eventos .fechar {
+    position: absolute;
+    top: 20px;
+    right: 2rem;
+    /* Responsivo; use rem para escalar */
+    font-size: 2rem;
+    /* 32px, escalável */
+    color: var(--texto);
+    cursor: pointer;
+    z-index: 1001;
+    /* Por cima da img e card */
+    background: rgba(0, 0, 0, 0.6);
+    /* Fundo semi-transparente para visibilidade */
+    border: none;
+    /* Remove borda padrão */
+    border-radius: 50%;
+    /* Círculo */
+    width: 3rem;
+    /* 48px */
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    /* Suave hover e foco */
+    font-family: sans-serif;
+    /* Garante que &times; renderize bem */
+}
+
+.eventos.chat .main .overlay-mural-eventos .fechar:hover,
+.eventos.chat .main .overlay-mural-eventos .fechar:focus {
+    opacity: 0.8;
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--destaque);
+    /* Muda cor no hover para destaque */
+    outline: 2px solid var(--hover);
+    /* Foco visível para acessibilidade */
+}
+
+/* Card de detalhes do evento (novo e completo!) */
+/* Imagem ampliada no overlay (ajuste mínimo para deixar espaço à direita) */
+.eventos.chat .main .overlay-mural-eventos .overlay-eventos-img {
+    max-width: 60%;
+    /* Reduzido de 80% para dar espaço ao card à direita */
+    max-height: 80%;
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+    object-fit: cover;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    cursor: zoom-out;
+    transition: transform 0.3s ease;
+}
+
+.eventos.chat .main .overlay-mural-eventos .overlay-eventos-img:hover {
+    transform: scale(1.02);
+}
+
+/* Card de detalhes do evento (posicionado à direita!) */
+.eventos.chat .main .overlay-mural-eventos .card-evento {
+    position: absolute;
+    right: 12rem;
+    /* À direita da tela, com margem */
+    top: 50%;
+    /* Centraliza verticalmente */
+    transform: translateY(-50%);
+    /* Ajuste fino para centralizar */
+    background: var(--cartao);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    max-width: 350px;
+    /* Largura fixa para caber ao lado da img */
+    max-height: 70vh;
+    /* Limita altura para scroll, sem invadir topo/baixo */
+    overflow-y: auto;
+    width: 100%;
+    /* Ocupa o max-width */
+    color: var(--texto);
+    z-index: 1001;
+    transition: opacity 0.3s ease;
+}
+
+.eventos.chat .main .overlay-mural-eventos[style*="display: flex"] .card-evento {
+    opacity: 1;
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento h2 {
+    margin: 0 0 1rem 0;
+    color: var(--destaque);
+    font-size: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--hover);
+    padding-bottom: 0.5rem;
+}
+
+/* Campos do card (sem mudanças) */
+.eventos.chat .main .overlay-mural-eventos .card-evento .field {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento .field:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento .label {
+    font-weight: bold;
+    color: var(--destaque);
+    flex: 1;
+    min-width: 100px;
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento .value {
+    flex: 2;
+    text-align: right;
+    color: var(--texto);
+    word-break: break-word;
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento .value.text {
+    text-align: left;
+    flex: 1;
+}
+
+/* Scrollbar customizada (sem mudanças) */
+.eventos.chat .main .overlay-mural-eventos .card-evento::-webkit-scrollbar {
+    width: 6px;
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.eventos.chat .main .overlay-mural-eventos .card-evento::-webkit-scrollbar-thumb {
+    background: var(--hover);
+    border-radius: 3px;
+}
+
+/* Responsividade: Mobile (card volta para bottom para caber) */
+@media (max-width: 768px) {
+    .eventos.chat .main .overlay-mural-eventos .overlay-eventos-img {
+        max-width: 95%;
+        /* Img full em mobile */
+        max-height: 70%;
+    }
+
+    .eventos.chat .main .overlay-mural-eventos .fechar {
+        top: 15px;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+    }
+
+    .eventos.chat .main .overlay-mural-eventos .card-evento {
+        position: absolute;
+        /* Muda para bottom em mobile */
+        right: auto;
+        /* Remove right */
+        bottom: 1rem;
+        top: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        /* Centraliza no bottom */
+        max-width: 90%;
+        width: auto;
+        /* Adapta à largura disponível */
+        max-height: 50vh;
+        padding: 1rem;
+    }
+
+    .eventos.chat .main .overlay-mural-eventos .card-evento .field {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .eventos.chat .main .overlay-mural-eventos .card-evento .value {
+        text-align: left;
+        margin-top: 0.25rem;
+    }
+}
+
+/* Responsividade: Telas muito pequenas (sem mudanças) */
+@media (max-width: 480px) {
+    .eventos.chat .main .overlay-mural-eventos .overlay-eventos-img {
+        max-height: 60%;
+    }
+
+    .eventos.chat .main .overlay-mural-eventos .card-evento {
+        max-height: 40vh;
+    }
+}
+
+
+
+.eventos.chat .main .lightbox-eventos .card-evento {
+    background: var(--cartao);
+    border-radius: 12px;
+    padding: 18px;
+    color: var(--texto);
+    max-width: 500px;
+    width: 400px;
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-left: 200px;
+}
+
+.eventos.chat .main .lightbox-eventos .card-evento h2 {
+    margin-top: 0;
+    font-size: 22px;
+}
+
+.eventos.chat .main .lightbox-eventos .field {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.eventos.chat .main .lightbox-eventos .field:last-child {
+    border-bottom: none;
+}
+
+.eventos.chat .main .lightbox-eventos .label {
+    color: var(--muted);
+    font-size: 18px;
+}
+
+.eventos.chat .main .lightbox-eventos .value {
+    font-weight: 600;
+    text-align: right;
+}
+
+.eventos.chat .main .lightbox-eventos .value.text {
+    max-width: 60%;
+}
+
+/* ---------------------------------- */
+
+.seminovos.chat .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.seminovos.chat .header button {
+    margin-right: 75px;
+    height: 50px;
+    padding: 10px;
+    border-radius: 15px;
+    outline: none;
+    border: none;
+    background-color: var(--cartao);
+    color: var(--texto);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.seminovos.chat .header button:hover {
+    transform: scale(1.1);
+    transition: 0.8s;
+}
+
+.seminovos.chat .main {
+    width: 100%;
+    height: 90vh;
+    overflow-y: scroll;
+}
+
+.seminovos.chat .main::-webkit-scrollbar {
+    width: 8px;
+}
+
+.seminovos.chat .main::-webkit-scrollbar-track {
+    background: var(--cartao);
+    border-radius: 8px;
+}
+
+.seminovos.chat .main::-webkit-scrollbar-thumb {
+    background-color: var(--destaque);
+    border-radius: 8px;
+    border: 2px solid var(--cartao);
+}
+
+
+.seminovos.chat .main .anuncio {
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: var(--cartao);
+    padding: 20px 25px 20px 25px;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 30px;
+    box-sizing: border-box;
+    /* importante */
+    overflow-wrap: break-word;
+    /* ajuda a evitar overflow */
+}
+
+.seminovos.chat .main .anuncio:hover {
+    background-color: var(--hover);
+}
+
+.seminovos.chat .main .anuncio .img-seminovo {
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 15px;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+}
+
+.seminovos.chat .main .anuncio .img-seminovo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.seminovos.chat .main .anuncio:hover .img-seminovo img {
+    transform: scale(1.05);
+}
+
+.seminovos.chat .main .anuncio .content {
+    color: var(--texto);
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+}
+
+.seminovos.chat .main .anuncio .content .descricao {
+    padding-bottom: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+    font-size: 16px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+
+.seminovos.chat .main .anuncio .content .nome {
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 6px;
+    color: var(--texto);
+}
+
+.seminovos.chat .main .anuncio .content .nome .marca {
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--destaque);
+    margin-left: 6px;
+}
+
+.seminovos.chat .main .anuncio .content .preco {
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--destaque-escuro);
+}
+
+.seminovos.chat .main .anuncio .content button {
+    align-self: start;
+    padding: 12px 30px;
+    border-radius: 25px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: var(--destaque);
+    color: #121212;
+    box-shadow: 0 4px 8px rgba(6, 182, 212, 0.5);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+}
+
+.seminovos.chat .main .anuncio .content button:hover,
+.seminovos.chat .main .anuncio .content button:focus {
+    background-color: var(--destaque-escuro);
+    box-shadow: 0 6px 12px rgba(0, 128, 128, 0.7);
+    outline: none;
+}
+
+@media (max-width: 700px) {
+    .seminovos.chat .main .anuncio {
+        grid-template-columns: 1fr;
+        padding: 15px 20px;
+    }
+
+    .seminovos.chat .main .anuncio .img-seminovo {
+        max-width: 100%;
+        aspect-ratio: auto;
+        height: 200px;
+        margin-bottom: 15px;
+    }
+
+    .seminovos.chat .main .anuncio .content {
+        font-size: 16px;
+    }
+
+    .seminovos.chat .main .anuncio .content .nome {
+        font-size: 20px;
+    }
+
+    .seminovos.chat .main .anuncio .content .preco {
+        font-size: 18px;
+    }
+
+    .seminovos.chat .main .anuncio .content button {
+        width: 100%;
+        padding: 14px 0;
+        font-size: 18px;
+        border-radius: 15px;
+    }
+}
+
+
+.seminovos.chat .header .form-seminovo {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.75);
+    width: 100%;
+    height: 200vh;
+    z-index: 100;
+}
+
+.seminovos.chat .header .form-seminovo form {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    background: var(--cartao);
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s ease;
+}
+
+/* Título */
+.seminovos.chat .header .form-seminovo h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--destaque);
+    text-shadow: 0 0 5px #06b6d488;
+    /* destaque com transparência */
+}
+
+/* Labels */
+.seminovos.chat .header .form-seminovo label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* Inputs e textarea */
+.seminovos.chat .header .form-seminovo input,
+.seminovos.chat .header .form-seminovo textarea,
+.seminovos.chat .header .form-seminovo select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 18px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: #2a2a2a;
+    /* cor escura, mantida */
+    color: var(--texto);
+    font-size: 14px;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.seminovos.chat .header .form-seminovo input:focus,
+.seminovos.chat .header .form-seminovo textarea:focus,
+.seminovos.chat .header .form-seminovo select:focus {
+    border-color: var(--destaque);
+    box-shadow: 0 0 5px #06b6d488;
+    /* destaque com transparência */
+    outline: none;
+}
+
+/* Input de arquivo (file) */
+.seminovos.chat .header .form-seminovo input[type="file"] {
+    padding: 8px;
+    border: 1px dashed #444;
+    /* mantido */
+    background: #2a2a2a;
+    /* mantido */
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.seminovos.chat .header .form-seminovo input[type="file"]:hover {
+    border-color: var(--destaque);
+    background: var(--hover);
+}
+
+.seminovos.chat .header .form-seminovo input[type="file"]::file-selector-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--destaque), var(--destaque-escuro));
+    color: #121212;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.seminovos.chat .header .form-seminovo input[type="file"]::file-selector-button:hover {
+    background: linear-gradient(135deg, #00e6b8, #007070);
+}
+
+/* Botão */
+.seminovos.chat .header .form-seminovo .btn.cadastro {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--destaque), var(--destaque-escuro));
+    border: none;
+    border-radius: 8px;
+    color: #121212;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.seminovos.chat .header .form-seminovo .btn.cadastro:hover {
+    background: linear-gradient(135deg, #00e6b8, #007070);
+    transform: translateY(-2px);
+}
+
+.seminovos.chat .header .form-seminovo .btn.cadastro:active {
+    transform: translateY(1px);
+}
+
+/* Ajuste do select */
+.seminovos.chat .header .form-seminovo select {
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Scroll estilizado */
+.seminovos.chat .header .form-seminovo textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.seminovos.chat .header .form-seminovo .sair {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    cursor: pointer;
+}
+
+.seminovos.chat .header .form-seminovo .sair:hover {
+    background: var(--erro-escuro);
+    box-shadow: 0 0 12px var(--erro);
+    transition: 0.5s;
+}
+
+
+
+.sugestoes.chat .main * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+}
+
+.sugestoes.chat .main .card-sugestao {
+    background-color: var(--cartao);
+    color: var(--texto);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+}
+
+.sugestoes.chat .main .card-sugestao h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.sugestoes.chat .main .card-sugestao p {
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.sugestoes.chat .main .acoes {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.sugestoes.chat .main .acoes button {
+    background: var(--hover);
+    border: none;
+    color: var(--texto);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s;
+}
+
+.sugestoes.chat .main .acoes button:hover {
+    background: var(--destaque);
+    color: #121212;
+}
+
+.sugestoes.chat .main .acoes button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.sugestoes.chat .main .contador {
+    font-weight: 700;
+}
+
+.sugestoes.chat .main .comentarios {
+    margin-top: 15px;
+    border-top: 1px solid var(--borda);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+    /* Altura máxima total da área de comentários */
+}
+
+.sugestoes.chat .main #listaComentarios-sugestoes {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 8px;
+    /* para evitar que o scroll fique colado no texto */
+    max-height: 220px;
+    /* altura máxima da lista de comentários */
+}
+
+/* Estilização do scroll para Webkit (Chrome, Edge, Safari) */
+.sugestoes.chat .main #listaComentarios-sugestoes::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sugestoes.chat .main #listaComentarios-sugestoes::-webkit-scrollbar-track {
+    background: var(--cartao);
+    border-radius: 8px;
+}
+
+.sugestoes.chat .main #listaComentarios-sugestoes::-webkit-scrollbar-thumb {
+    background-color: var(--destaque);
+    border-radius: 8px;
+    border: 2px solid var(--cartao);
+}
+
+/* Scrollbar para Firefox */
+.sugestoes.chat .main #listaComentarios-sugestoes {
+    scrollbar-width: thin;
+    scrollbar-color: var(--destaque) var(--cartao);
+}
+
+.sugestoes.chat .main #listaComentarios-sugestoes div {
+    margin-bottom: 12px;
+}
+
+.sugestoes.chat .main .input-comentario {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    /* para não encolher */
+}
+
+.sugestoes.chat .main .input-comentario input {
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    background: var(--fundo);
+    color: var(--texto);
+    outline: none;
+}
+
+.sugestoes.chat .main .input-comentario button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--destaque);
+    color: #121212;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.sugestoes.chat .main .input-comentario button:hover {
+    background: var(--destaque-escuro);
+}
+
+.chat-geral.chat.active {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--fundo);
+}
+
+.chat-geral.chat .header {
+    flex-shrink: 0;
+    padding: 10px;
+    background-color: var(--cartao);
+    border-bottom: 1px solid #ddd;
+}
+
+.chat-geral.chat .main {
+    flex: 1;
+    min-height: 0;
+    /* Adicionado: Permite que o flex item respeite overflow */
+    display: flex;
+    flex-direction: column;
+    /* justify-content: flex-end; /* Comente esta linha se o scroll não rolar para mensagens antigas; descomente para auto-bottom */
+    padding: 10px;
+    padding-bottom: 80px;
+    overflow-y: auto;
+    /* Scroll vertical */
+    overflow-x: hidden;
+    gap: 10px;
+}
+
+.chat-geral.chat .main::-webkit-scrollbar {
+    width: 8px;
+    /* Mais visível para teste */
+}
+
+.chat-geral.chat .main::-webkit-scrollbar-track {
+    background: var(--cartao);
+    border-radius: 3px;
+}
+
+.chat-geral.chat .main::-webkit-scrollbar-thumb {
+    background: var(--destaque);
+    border-radius: 3px;
+}
+
+.chat-geral.chat .main::-webkit-scrollbar-thumb:hover {
+    background: var(--destaque-escuro);
+}
+
+/* Resto dos estilos para mensagens, footer, etc. (copie do anterior: .recebido, .enviado, .footer, etc.) */
+.chat-geral.chat .main .recebido {
+    align-self: flex-start;
+    color: var(--texto);
+    background-color: #131313;
+    padding: 15px 15px 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    margin-bottom: 5px;
+}
+
+.chat-geral.chat .main .recebido .mensagem-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.chat-geral.chat .main .recebido .nome-usuario {
+    font-weight: bold;
+    color: var(--texto);
+    padding-right: 20px;
+}
+
+.chat-geral.chat .main .recebido .hora-envio {
+    color: var(--muted);
+}
+
+.chat-geral.chat .main .recebido p {
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+.chat-geral.chat .main .enviado {
+    align-self: flex-end;
+    background-color: var(--destaque-escuro);
+    color: white;
+    padding: 15px 15px 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    margin-bottom: 5px;
+}
+
+.chat-geral.chat .main .enviado .mensagem-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.chat-geral.chat .main .enviado .nome-usuario {
+    font-weight: bold;
+    color: white;
+    margin-right: 10px;
+}
+
+.chat-geral.chat .main .enviado .hora-envio {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.chat-geral.chat .main .enviado p {
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+.chat-geral.chat .footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: var(--cartao);
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.chat-geral.chat .footer #anexo,
+.chat-geral.chat .footer #enviar {
+    cursor: pointer;
+    margin-right: 10px;
+    margin-left: 10px;
+    filter: brightness(0.8);
+}
+
+.chat-geral.chat .footer #barra-mensagem {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    max-width: 70%;
+    margin: 0 10px;
+    background-color: #f8f9fa;
+    border-radius: 25px;
+    padding: 5px 15px;
+    gap: 10px;
+}
+
+.chat-geral.chat .footer #barra-mensagem input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #000000;
+}
+
+.chat-geral.chat .footer #barra-mensagem #emoji,
+.chat-geral.chat .footer #barra-mensagem #audio {
+    cursor: pointer;
+    filter: brightness(0.8);
+}
+
+/* Media query para mobile (mesmo de antes) */
+@media (max-width: 600px) {
+
+    .chat-geral.chat .main .recebido,
+    .chat-geral.chat .main .enviado {
+        max-width: 90%;
+        padding: 12px 12px 8px;
+    }
+
+    .chat-geral.chat .main .recebido .mensagem-header,
+    .chat-geral.chat .main .enviado .mensagem-header {
+        font-size: 11px;
+    }
+
+    .chat-geral.chat .main {
+        padding-bottom: 70px;
+    }
+
+    .chat-geral.chat .main::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .chat-geral.chat .footer {
+        padding: 8px;
+        gap: 5px;
+    }
+
+    .chat-geral.chat .footer #barra-mensagem {
+        max-width: 100%;
+        margin: 0;
+    }
+}
