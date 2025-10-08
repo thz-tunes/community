@@ -52,3 +52,6 @@ CREATE TABLE eventos (
 ALTER TABLE seminovos
 ADD COLUMN id_categoria INT NULL,
 ADD COLUMN imagem VARCHAR(255) NULL;
+
+
+ALTER TABLE usuarios CHANGE senha senha_hash VARCHAR(255) NOT NULL;

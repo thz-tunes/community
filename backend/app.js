@@ -1,13 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url';  // Para __dirname em ES Modules
-import http from 'http';  // Built-in, sem require
-import { Server } from 'socket.io';  // Import correto para socket.io em ES
-import fs from 'fs-extra';  // Para persistência JSON
+import { fileURLToPath } from 'url';
+import http from 'http';
+import { Server } from 'socket.io';
+import fs from 'fs-extra';
 import multer from 'multer';
+import dotenv from 'dotenv';
+import mysql from 'mysql2/promise';
 
-import { inserir_usuario, autenticar_usuario, listar_seminovo, inserir_seminovo, excluir_semivovo } from './controller.js';  // .js no final
+import { inserir_usuario, autenticar_usuario, listar_seminovo, inserir_seminovo, excluir_semivovo } from './controller.js';
+
+// Carregar variáveis de ambiente
+dotenv.config();
 
 // Polyfill para __dirname em ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -15,74 +20,157 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {  // Usando new Server() para ES Modules
+const io = new Server(server, {
   cors: {
-    origin: "*",  // Ajuste para produção (ex: "http://localhost:3000")
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
 
-// CORS Configurado Explicitamente (CORREÇÃO: Substitui app.use(cors()); para resolver bloqueio no frontend)
+// ============== CONEXÃO COM BANCO DE DADOS ==============
+let dbPool = null;
+
+async function initializeDatabase() {
+  try {
+    dbPool = mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      port: process.env.DB_PORT || 3306,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+
+    // Testar conexão
+    const connection = await dbPool.getConnection();
+    console.log('✅ Conectado ao MySQL com sucesso!');
+    console.log('📊 Database:', process.env.DB_DATABASE);
+    connection.release();
+
+    // Criar tabelas se não existirem
+    await createTablesIfNotExist();
+
+  } catch (error) {
+    console.error('❌ Erro ao conectar no MySQL:', error.message);
+    console.log('⚠️  Usando modo fallback (arquivos JSON)');
+    dbPool = null;
+  }
+}
+
+async function createTablesIfNotExist() {
+  if (!dbPool) return;
+
+  try {
+    await dbPool.execute(`
+      CREATE TABLE IF NOT EXISTS usuarios (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL,
+        telefone CHAR(11) NOT NULL UNIQUE,
+        data_nascimento DATE,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        senha_hash VARCHAR(255) NOT NULL
+      )
+    `);
+
+    await dbPool.execute(`
+      CREATE TABLE IF NOT EXISTS categorias_esportes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome_categoria VARCHAR(100) NOT NULL
+      )
+    `);
+
+    await dbPool.execute(`
+      CREATE TABLE IF NOT EXISTS produtos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(150) NOT NULL,
+        descricao TEXT,
+        preco DECIMAL(10,2) NOT NULL,
+        marca VARCHAR(100),
+        modelo VARCHAR(100),
+        dimensoes VARCHAR(100),
+        garantia_meses INT DEFAULT 0
+      )
+    `);
+
+    await dbPool.execute(`
+      CREATE TABLE IF NOT EXISTS seminovos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(150) NOT NULL,
+        descricao TEXT NOT NULL,
+        preco DECIMAL(10,2) NOT NULL,
+        marca VARCHAR(100) NOT NULL,
+        email VARCHAR(150) NOT NULL,
+        id_categoria INT NULL,
+        imagem VARCHAR(255) NULL
+      )
+    `);
+
+    await dbPool.execute(`
+      CREATE TABLE IF NOT EXISTS eventos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(150) NOT NULL,
+        descricao TEXT NOT NULL,
+        gratuito BOOLEAN NOT NULL,
+        preco DECIMAL(10,2),
+        endereco VARCHAR(200) NOT NULL,
+        data_evento DATE
+      )
+    `);
+
+    console.log('✅ Tabelas verificadas/criadas com sucesso!');
+  } catch (error) {
+    console.error('❌ Erro ao criar tabelas:', error);
+  }
+}
+
+// Inicializar banco ao iniciar o servidor
+await initializeDatabase();
+
+// ============== CORS ==============
 app.use(cors({
   origin: function (origin, callback) {
-    // Permite origens locais para dev (ajuste portas conforme seu frontend)
     const allowedOrigins = [
-      'http://localhost:5500',  // VS Code Live Server (padrão)
+      'http://localhost:5500',
       'http://127.0.0.1:5500',
-
+      'https://community-production-5ff9.up.railway.app'
     ];
-    // Em dev, permite qualquer origem sem header (ex: file:// ou Postman)
+    
     if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,  // ESSENCIAL para 'credentials: "include"' no fetch (cookies/sessão)
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // Inclui OPTIONS para preflight
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']  // Headers comuns
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Middleware para preflight OPTIONS (responde automaticamente a requests OPTIONS do navegador)
 app.options('*', cors());
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 app.use(express.json());
 
-// ============== SOCKET.IO - CHAT EM TEMPO REAL ==============
-// Arquivo para armazenar mensagens (persistência simples)
+// ============== SOCKET.IO - CHAT ==============
 const MESSAGES_FILE = 'messages.json';
-
-// Carregue mensagens uma vez no nível superior (agora possível com ES Modules)
 let messages = [];
+
 (async () => {
   try {
-    messages = await loadMessages();
-    console.log('Mensagens carregadas:', messages.length);
+    if (await fs.pathExists(MESSAGES_FILE)) {
+      messages = await fs.readJson(MESSAGES_FILE);
+      console.log('💬 Mensagens carregadas:', messages.length);
+    }
   } catch (error) {
-    console.error('Erro ao carregar mensagens iniciais:', error);
+    console.error('Erro ao carregar mensagens:', error);
   }
 })();
 
-// Função para carregar mensagens do arquivo
-async function loadMessages() {
+async function saveMessages(msgs) {
   try {
-    if (await fs.pathExists(MESSAGES_FILE)) {
-      return await fs.readJson(MESSAGES_FILE);
-    }
-    return [];
-  } catch (err) {
-    console.error('Erro ao carregar mensagens:', err);
-    return [];
-  }
-}
-
-// Função para salvar mensagens no arquivo (CORREÇÃO: Limita a 100 mensagens recentes para performance)
-async function saveMessages(messages) {
-  try {
-    // Opcional: Manter só as últimas 100 mensagens
-    const recentMessages = messages.slice(-100);
+    const recentMessages = msgs.slice(-100);
     await fs.writeJson(MESSAGES_FILE, recentMessages, { spaces: 2 });
   } catch (err) {
     console.error('Erro ao salvar mensagens:', err);
@@ -90,95 +178,68 @@ async function saveMessages(messages) {
 }
 
 io.on('connection', (socket) => {
-  console.log('Usuário conectado ao chat:', socket.id);
+  console.log('👤 Usuário conectado:', socket.id);
 
-  // CORREÇÃO: Removido o emit automático de 'loadMessages' aqui (para evitar perda de eventos).
-  // Agora, responde apenas quando o client solicitar (veja abaixo).
-
-  // CORREÇÃO: Novo listener para responder ao request de histórico do client
   socket.on('loadMessages', () => {
-    console.log('Solicitação de histórico recebida de:', socket.id);
-    socket.emit('loadMessages', messages);  // Envia só para o socket que pediu
+    socket.emit('loadMessages', messages);
   });
 
-  // Recebe nova mensagem do cliente
   socket.on('sendMessage', async (data) => {
     const { username, message } = data;
-    if (!username || !message.trim()) {
-      console.log('Mensagem inválida ignorada.');
-      return;
-    }
+    if (!username || !message.trim()) return;
 
     const newMessage = {
-      id: Date.now(),  // ID simples baseado em timestamp
+      id: Date.now(),
       username,
       message: message.trim(),
       timestamp: new Date().toISOString()
     };
 
-    // Adiciona ao array e salva no arquivo
     messages.push(newMessage);
-    await saveMessages(messages);  // Await aqui para garantir salvamento
-
-    // Broadcasta para todos os clientes (incluindo o remetente)
+    await saveMessages(messages);
     io.emit('newMessage', newMessage);
-    console.log('Nova mensagem enviada:', newMessage.id);
   });
 
-  // Quando o usuário desconecta (ex: sai da página ou fecha o chat)
   socket.on('disconnect', () => {
-    console.log('Usuário desconectado do chat:', socket.id);
-    // Não remove mensagens; elas persistem para todos
+    console.log('👋 Usuário desconectado:', socket.id);
   });
 });
 
-
-// -------------------------------------
-//               USUÁRIOS 
-// ------------------------------------- 
-
-
-// Rota de Register (Cadastro) - Mantém como está, mas com log
+// ============== ROTAS - USUÁRIOS ==============
 app.post('/user/register', async (req, res) => {
   try {
-    console.log('Recebido no backend (register):', req.body);
+    console.log('📝 Cadastro recebido:', req.body);
     const novo_usuario = req.body;
-    await inserir_usuario(novo_usuario);
-    console.log('Usuário inserido com sucesso!');
-    res.status(201).json({ mensagem: 'Usuário inserido com sucesso!' });
+    const resultado = await inserir_usuario(novo_usuario, dbPool);
+    
+    if (!resultado.sucesso) {
+      return res.status(400).json({ erro: resultado.mensagem });
+    }
+    
+    res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
   } catch (err) {
-    console.error("Erro no servidor (register):", err);
+    console.error("❌ Erro no cadastro:", err);
     res.status(500).json({ erro: err.message });
   }
 });
 
-// Rota de Login - Mantém como está, com logs
 app.post("/user/login", async (req, res) => {
   try {
-    console.log('Recebido no backend (login):', req.body);
-    const resultado = await autenticar_usuario(req.body);
-    console.log('Resultado da autenticação:', resultado);
+    console.log('🔐 Login recebido:', req.body.email);
+    const resultado = await autenticar_usuario(req.body, dbPool);
 
     if (!resultado.sucesso) {
-      console.log('Falha na autenticação:', resultado.mensagem);
       return res.status(401).json(resultado);
     }
 
-    console.log('Login bem-sucedido para:', resultado.usuario.email);
     res.json(resultado);
   } catch (err) {
-    console.error('Erro no servidor (login):', err);
+    console.error('❌ Erro no login:', err);
     res.status(500).json({ sucesso: false, mensagem: "Erro ao autenticar usuário." });
   }
 });
 
-
-
-
-// -------------------------------------
-//               MULTER 
-// ------------------------------------- 
-
+// ============== MULTER ==============
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, 'uploads'));
@@ -193,7 +254,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },  // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
       return cb(new Error('Apenas imagens são permitidas'));
@@ -202,15 +263,15 @@ const upload = multer({
   }
 });
 
-
-
-// -------------------------------------
-//               SEMINOVOS 
-// ------------------------------------- 
-
+// ============== ROTAS - SEMINOVOS ==============
 app.get('/seminovos', async (req, res) => {
-  var seminovos = await listar_seminovo();
-  res.send(seminovos);
+  try {
+    const seminovos = await listar_seminovo(dbPool);
+    res.json(seminovos);
+  } catch (err) {
+    console.error('❌ Erro ao listar seminovos:', err);
+    res.status(500).json({ erro: err.message });
+  }
 });
 
 app.post('/seminovo/register', upload.single('imagem'), async (req, res) => {
@@ -225,10 +286,15 @@ app.post('/seminovo/register', upload.single('imagem'), async (req, res) => {
       imagem: req.file ? req.file.filename : null
     };
 
-    await inserir_seminovo(novoSemi);
-    res.status(201).json({ sucesso: true, mensagem: 'Anúncio de Seminovo inserido com sucesso!' });
+    const resultado = await inserir_seminovo(novoSemi, dbPool);
+    
+    if (!resultado.sucesso) {
+      return res.status(400).json({ sucesso: false, mensagem: resultado.mensagem });
+    }
+
+    res.status(201).json({ sucesso: true, mensagem: 'Anúncio inserido com sucesso!' });
   } catch (err) {
-    console.error("Erro ao inserir seminovo:", err);
+    console.error("❌ Erro ao inserir seminovo:", err);
     res.status(500).json({ sucesso: false, mensagem: 'Erro ao inserir seminovo', detalhe: err.message });
   }
 });
@@ -236,17 +302,32 @@ app.post('/seminovo/register', upload.single('imagem'), async (req, res) => {
 app.delete("/seminovo/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    await excluir_semivovo(id);
-    res.status(200).send("Anúncio de Seminovo excluído com êxito!");
+    const resultado = await excluir_semivovo(id, dbPool);
+    
+    if (!resultado.sucesso) {
+      return res.status(404).json({ erro: resultado.mensagem });
+    }
+    
+    res.status(200).json({ mensagem: "Anúncio excluído com êxito!" });
   } catch (erro) {
-    res.status(500).send({ err: erro.message });
+    res.status(500).json({ erro: erro.message });
   }
 });
-// =============================================================
 
+// ============== ROTA DE SAÚDE ==============
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    database: dbPool ? 'connected' : 'fallback',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ============== INICIAR SERVIDOR ==============
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-  console.log(`Socket.io disponível em http://localhost:${PORT}`);
-  console.log('CORS configurado para origens locais.');  // Confirmação da correção
+  console.log(`\n🚀 Servidor rodando em http://localhost:${PORT}`);
+  console.log(`💬 Socket.io disponível`);
+  console.log(`🗄️  Database: ${dbPool ? 'MySQL conectado' : 'Modo fallback (JSON)'}`);
+  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}\n`);
 });
