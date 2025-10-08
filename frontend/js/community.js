@@ -1,6 +1,6 @@
 // ============== CONFIGURAÇÃO DINÂMICA ==============
 // Pega URLs da config.js (carregada antes deste script)
-const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:5000';
+const API_URL = window.APP_CONFIG?.API_URL || 'https://github.com/thz-tunes/community.git';
 const SOCKET_URL = window.APP_CONFIG?.SOCKET_URL || 'http://localhost:5000';
 
 console.log('🔧 Usando API_URL:', API_URL);
