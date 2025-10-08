@@ -2,10 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
-  "main": "js/app.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node js/app.js",
-    "dev": "nodemon js/app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
