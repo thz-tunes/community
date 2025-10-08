@@ -23,7 +23,8 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -43,13 +44,11 @@ async function initializeDatabase() {
       queueLimit: 0
     });
 
-    // Testar conexão
     const connection = await dbPool.getConnection();
     console.log('✅ Conectado ao MySQL com sucesso!');
     console.log('📊 Database:', process.env.DB_DATABASE);
     connection.release();
 
-    // Criar tabelas se não existirem
     await createTablesIfNotExist();
 
   } catch (error) {
@@ -125,51 +124,47 @@ async function createTablesIfNotExist() {
   }
 }
 
-// Inicializar banco ao iniciar o servidor
 await initializeDatabase();
 
-// ============== CORS ==============
+// ============== CORS CONFIGURAÇÃO ==============
+const allowedOrigins = [
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'https://thz-tunes.github.io',
+  'http://thz-tunes.github.io',
+  'https://community-production-5ff9.up.railway.app'
+];
+
+console.log('🔒 Origens CORS permitidas:', allowedOrigins);
+
+// CORS middleware - APENAS UMA VEZ
 app.use(cors({
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:5500',
-      'http://127.0.0.1:5500',
-      'https://community-production-5ff9.up.railway.app',
-      'https://seu-usuario.github.io',  // ⬅️ SUBSTITUA pelo seu usuário
-      'http://seu-usuario.github.io'    // ⬅️ SUBSTITUA pelo seu usuário
-    ];
-
-    // Em desenvolvimento ou sem origin (Postman, etc), permite tudo
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    // Permite requests sem origin (mobile apps, Postman, cURL)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS permitido para:', origin);
       callback(null, true);
     } else {
-      console.log('❌ Origem bloqueada por CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+      console.log('❌ CORS bloqueado para:', origin);
+      callback(null, false); // Não retorna erro, apenas bloqueia
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 // Para browsers antigos
 }));
 
-app.options('*', cors());
-
-// Headers de segurança adicionais
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-
-  // Responde imediatamente para preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Middleware JSON
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Servir arquivos estáticos
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ============== SOCKET.IO - CHAT ==============
 const MESSAGES_FILE = 'messages.json';
@@ -223,17 +218,29 @@ io.on('connection', (socket) => {
   });
 });
 
-// ============== ROTAS - USUÁRIOS ==============
+// ============== ROTAS ==============
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    database: dbPool ? 'connected' : 'fallback',
+    timestamp: new Date().toISOString(),
+    cors: 'enabled'
+  });
+});
+
+// USUÁRIOS
 app.post('/user/register', async (req, res) => {
   try {
-    console.log('📝 Cadastro recebido:', req.body);
+    console.log('📝 Cadastro recebido:', req.body.email);
     const novo_usuario = req.body;
     const resultado = await inserir_usuario(novo_usuario, dbPool);
-
+    
     if (!resultado.sucesso) {
       return res.status(400).json({ erro: resultado.mensagem });
     }
-
+    
     res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
   } catch (err) {
     console.error("❌ Erro no cadastro:", err);
@@ -281,7 +288,7 @@ const upload = multer({
   }
 });
 
-// ============== ROTAS - SEMINOVOS ==============
+// SEMINOVOS
 app.get('/seminovos', async (req, res) => {
   try {
     const seminovos = await listar_seminovo(dbPool);
@@ -305,7 +312,7 @@ app.post('/seminovo/register', upload.single('imagem'), async (req, res) => {
     };
 
     const resultado = await inserir_seminovo(novoSemi, dbPool);
-
+    
     if (!resultado.sucesso) {
       return res.status(400).json({ sucesso: false, mensagem: resultado.mensagem });
     }
@@ -321,31 +328,34 @@ app.delete("/seminovo/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const resultado = await excluir_semivovo(id, dbPool);
-
+    
     if (!resultado.sucesso) {
       return res.status(404).json({ erro: resultado.mensagem });
     }
-
+    
     res.status(200).json({ mensagem: "Anúncio excluído com êxito!" });
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
   }
 });
 
-// ============== ROTA DE SAÚDE ==============
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    database: dbPool ? 'connected' : 'fallback',
-    timestamp: new Date().toISOString()
-  });
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ erro: 'Rota não encontrada' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('❌ Erro no servidor:', err);
+  res.status(500).json({ erro: 'Erro interno do servidor', mensagem: err.message });
 });
 
 // ============== INICIAR SERVIDOR ==============
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Servidor rodando em http://localhost:${PORT}`);
   console.log(`💬 Socket.io disponível`);
   console.log(`🗄️  Database: ${dbPool ? 'MySQL conectado' : 'Modo fallback (JSON)'}`);
-  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}\n`);
+  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔒 CORS configurado para ${allowedOrigins.length} origens\n`);
 });
