@@ -1,4 +1,4 @@
-DROP DATABASE supernova;
+
 CREATE DATABASE IF NOT EXISTS supernova;
 USE supernova;
 
