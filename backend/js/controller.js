@@ -1,100 +1,121 @@
-import { conectar, desconectar } from './db.js';  // Já correto
-import bcrypt from 'bcrypt';  // Mudança: import em vez de require
+import fs from 'fs-extra';
+import bcrypt from 'bcrypt';
 
-// ------------- USUÁRIO ------------------
+const USERS_FILE = 'users.json';
+const SEMINOVOS_FILE = 'seminovos.json';
 
-// Função auxiliar para verificar se email já existe
-async function emailExiste(email) {
-    const conn = await conectar();
-    const [rows] = await conn.execute('SELECT id FROM usuarios WHERE email = ? LIMIT 1', [email]);
-    await desconectar(conn);
-    return rows.length > 0;
+// Carrega dados (fallback se DB null)
+async function loadData(file) {
+  if (dbPool) return null;  // Usa DB
+  try {
+    if (await fs.pathExists(file)) return await fs.readJson(file);
+    return [];
+  } catch (err) {
+    return [];
+  }
 }
 
-async function inserir_usuario(user) {
-    const { nome, telefone, data_nascimento, email } = user;
-    const senha = await bcrypt.hash(user.senha, 10);
-
-    // Verifica se email já existe
-    if (await emailExiste(email)) {
-        throw new Error('E-mail já cadastrado. Use outro.');
-    }
-
-    const conn = await conectar();
-    const query = 'INSERT INTO usuarios (nome, telefone, data_nascimento, email, senha) VALUES (?, ?, ?, ?, ?)';
-    await conn.execute(query, [nome, telefone, data_nascimento, email, senha]);
-    await desconectar(conn);
+async function saveData(data, file) {
+  if (dbPool) return true;  // Salva no DB via funções
+  try {
+    await fs.writeJson(file, data, { spaces: 2 });
+    return true;
+  } catch (err) {
+    console.error('Erro save:', err);
+    return false;
+  }
 }
 
-async function autenticar_usuario(usuario) {
-    const { email, senha } = usuario;
-    const conn = await conectar();
-
-    // Busca usuário pelo email
-    const [rows] = await conn.execute(
-        'SELECT * FROM usuarios WHERE email = ? LIMIT 1',
-        [email]
-    );
-
-    await desconectar(conn);
-
-    // Se não achou usuário
-    if (rows.length === 0) {
-        return { sucesso: false, mensagem: 'Usuário não encontrado' };
-    }
-
-    const usuarioDB = rows[0];
-
-    // Compara a senha informada com a senha hash
-    const senhaCorreta = await bcrypt.compare(senha, usuarioDB.senha);
-
-    if (!senhaCorreta) {
-        return { sucesso: false, mensagem: 'Senha incorreta' };
-    }
-
-    return {
-        sucesso: true,
-        mensagem: 'Login realizado com sucesso',
-        usuario: { id: usuarioDB.id, nome: usuarioDB.nome, email: usuarioDB.email }
-    };
-}
-
-
-
-// ------------- SEMINOVOS ------------------
-
-async function listar_seminovo() {
+// Usuários
+export async function inserir_usuario(usuario, dbPool) {
+  if (dbPool) {
     try {
-        const conn = await conectar();
-        var query = 'SELECT * FROM seminovos';
-        var [linhas] = await conn.execute(query);
-        // console.log(linhas);
-        await desconectar(conn);
-        return linhas;
+      const query = 'INSERT INTO usuarios (nome, email, senha_hash, telefone, data_nascimento) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+      const result = await dbPool.query(query, [usuario.nome, usuario.email, usuario.senha_hash, usuario.telefone, usuario.data_nascimento]);
+      return { sucesso: true, id: result.rows[0].id };
     } catch (err) {
-        console.log('Erro: ', err.message)
+      if (err.code === '23505') return { sucesso: false, mensagem: 'Email já existe' };  // Unique violation
+      return { sucesso: false, mensagem: err.message };
     }
+  }
+  // Fallback JSON
+  const users = await loadData(USERS_FILE);
+  const id = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
+  usuario.id = id;
+  users.push(usuario);
+  const saved = await saveData(users, USERS_FILE);
+  return { sucesso: saved, id };
 }
 
-async function inserir_seminovo(seminovo) {
-    const { nome, descricao, preco, marca, email, id_categoria, imagem } = seminovo;
-
-    const conn = await conectar();
-    const query = 'INSERT INTO seminovos (nome, descricao, preco, marca, email, id_categoria, imagem) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const parametros = [nome, descricao, preco, marca, email, id_categoria || null, imagem || null];
-    await conn.execute(query, parametros);
-    await desconectar(conn);
+export async function autenticar_usuario({ email, senha }, dbPool) {
+  if (dbPool) {
+    try {
+      const query = 'SELECT * FROM usuarios WHERE email = $1';
+      const result = await dbPool.query(query, [email]);
+      const user = result.rows[0];
+      if (user && await bcrypt.compare(senha, user.senha_hash)) {
+        const { senha_hash, ...safeUser  } = user;
+        return { sucesso: true, usuario: safeUser  };
+      }
+      return { sucesso: false, mensagem: 'Credenciais inválidas' };
+    } catch (err) {
+      return { sucesso: false, mensagem: err.message };
+    }
+  }
+  // Fallback JSON
+  const users = await loadData(USERS_FILE);
+  const user = users.find(u => u.email === email);
+  if (user && await bcrypt.compare(senha, user.senha_hash)) {
+    const { senha_hash, ...safeUser  } = user;
+    return { sucesso: true, usuario: safeUser  };
+  }
+  return { sucesso: false, mensagem: 'Credenciais inválidas' };
 }
 
-async function excluir_semivovo(id) {
-    const conn = await conectar();
-
-    var query = "DELETE FROM seminovos WHERE id = ?;";
-    var param = [id];
-
-    await conn.execute(query, param);
-    await desconectar(conn)
+// Seminovos (similar, com INSERT/SELECT no DB)
+export async function listar_seminovo(dbPool) {
+  if (dbPool) {
+    try {
+      const result = await dbPool.query('SELECT * FROM seminovos ORDER BY id DESC');
+      return result.rows;
+    } catch (err) {
+      console.error('Erro listar seminovos DB:', err);
+      return [];
+    }
+  }
+  return await loadData(SEMINOVOS_FILE);
 }
 
-// Mudança: Export em vez de module.exports
-export { inserir_usuario, autenticar_usuario, listar_seminovo, inserir_seminovo, excluir_semivovo };
+export async function inserir_seminovo(seminovo, dbPool) {
+  if (dbPool) {
+    try {
+      const query = 'INSERT INTO seminovos (nome, descricao, preco, marca, email, id_categoria, imagem) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id';
+      const result = await dbPool.query(query, [seminovo.nome, seminovo.descricao, seminovo.preco, seminovo.marca, seminovo.email, seminovo.id_categoria, seminovo.imagem]);
+      return { sucesso: true, id: result.rows[0].id };
+    } catch (err) {
+      return { sucesso: false, mensagem: err.message };
+    }
+  }
+  const seminovos = await loadData(SEMINOVOS_FILE);
+  const id = seminovos.length ? Math.max(...seminovos.map(s => s.id)) + 1 : 1;
+  seminovo.id = id;
+  seminovos.push(seminovo);
+  const saved = await saveData(seminovos, SEMINOVOS_FILE);
+  return { sucesso: saved, id };
+}
+
+export async function excluir_semivovo(id, dbPool) {
+  if (dbPool) {
+    try {
+      const result = await dbPool.query('DELETE FROM seminovos WHERE id = $1 RETURNING id', [id]);
+      return { sucesso: !!result.rows.length, mensagem: result.rows.length ? 'Excluído' : 'Não encontrado' };
+    } catch (err) {
+      return { sucesso: false, mensagem: err.message };
+    }
+  }
+  let seminovos = await loadData(SEMINOVOS_FILE);
+  const initialLength = seminovos.length;
+  seminovos = seminovos.filter(s => s.id != id);
+  const saved = await saveData(seminovos, SEMINOVOS_FILE);
+  return { sucesso: saved && seminovos.length < initialLength, mensagem: 'Excluído' };
+}
