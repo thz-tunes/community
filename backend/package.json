@@ -2,16 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
-<<<<<<< HEAD
   "main": "js/app.js",
   "scripts": {
     "start": "node js/app.js",
-    "dev": "nodemon server.js"
-=======
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
->>>>>>> e954388 (commit apos alteracoes no back)
+    "dev": "nodemon js/app.js"
   },
   "keywords": [],
   "author": "",
@@ -20,10 +14,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-<<<<<<< HEAD
-=======
     "dotenv": "^17.2.3",
->>>>>>> e954388 (commit apos alteracoes no back)
     "express": "^4.19.2",
     "express-session": "^1.18.2",
     "fs-extra": "^11.3.2",
@@ -31,8 +22,4 @@
     "mysql2": "^3.15.0",
     "socket.io": "^4.8.1"
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> e954388 (commit apos alteracoes no back)
