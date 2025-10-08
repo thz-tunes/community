@@ -134,12 +134,16 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:5500',
       'http://127.0.0.1:5500',
-      'https://community-production-5ff9.up.railway.app'
+      'https://community-production-5ff9.up.railway.app',
+      'https://seu-usuario.github.io',  // ⬅️ SUBSTITUA pelo seu usuário
+      'http://seu-usuario.github.io'    // ⬅️ SUBSTITUA pelo seu usuário
     ];
-    
+
+    // Em desenvolvimento ou sem origin (Postman, etc), permite tudo
     if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
+      console.log('❌ Origem bloqueada por CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -149,6 +153,20 @@ app.use(cors({
 }));
 
 app.options('*', cors());
+
+// Headers de segurança adicionais
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+
+  // Responde imediatamente para preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
@@ -211,11 +229,11 @@ app.post('/user/register', async (req, res) => {
     console.log('📝 Cadastro recebido:', req.body);
     const novo_usuario = req.body;
     const resultado = await inserir_usuario(novo_usuario, dbPool);
-    
+
     if (!resultado.sucesso) {
       return res.status(400).json({ erro: resultado.mensagem });
     }
-    
+
     res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
   } catch (err) {
     console.error("❌ Erro no cadastro:", err);
@@ -287,7 +305,7 @@ app.post('/seminovo/register', upload.single('imagem'), async (req, res) => {
     };
 
     const resultado = await inserir_seminovo(novoSemi, dbPool);
-    
+
     if (!resultado.sucesso) {
       return res.status(400).json({ sucesso: false, mensagem: resultado.mensagem });
     }
@@ -303,11 +321,11 @@ app.delete("/seminovo/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const resultado = await excluir_semivovo(id, dbPool);
-    
+
     if (!resultado.sucesso) {
       return res.status(404).json({ erro: resultado.mensagem });
     }
-    
+
     res.status(200).json({ mensagem: "Anúncio excluído com êxito!" });
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
@@ -316,8 +334,8 @@ app.delete("/seminovo/delete/:id", async (req, res) => {
 
 // ============== ROTA DE SAÚDE ==============
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     database: dbPool ? 'connected' : 'fallback',
     timestamp: new Date().toISOString()
   });

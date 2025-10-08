@@ -15,11 +15,23 @@ const config = {
 const isDevelopment = window.location.hostname === 'localhost' || 
                       window.location.hostname === '127.0.0.1';
 
-const currentConfig = isDevelopment ? config.development : config.production;
+// Se estiver no GitHub Pages, força produção
+const isGitHubPages = window.location.hostname.includes('github.io');
+
+let currentConfig;
+if (isDevelopment) {
+  currentConfig = config.development;
+} else if (isGitHubPages) {
+  currentConfig = config.production;
+  console.log('🌐 GitHub Pages detectado - usando API de produção');
+} else {
+  currentConfig = config.production;
+}
 
 // Exporta as configurações
 window.APP_CONFIG = currentConfig;
 
-console.log('🔧 Ambiente detectado:', isDevelopment ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
+console.log('🔧 Ambiente:', isDevelopment ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
 console.log('🌐 API URL:', currentConfig.API_URL);
 console.log('💬 Socket URL:', currentConfig.SOCKET_URL);
+console.log('🏠 Hostname:', window.location.hostname);
