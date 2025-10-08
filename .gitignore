@@ -1,10 +1,34 @@
+# Dependências
 node_modules/
+
+# Variáveis de ambiente (NUNCA commitar!)
 .env
+.env.local
+.env.production
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Uploads (se forem temporários)
 uploads/*
 !uploads/.gitkeep
-messages.json
+
+# Logs
 *.log
-.DS_Store
-.env.example
-package-lock.json
+npm-debug.log*
+
+# Arquivos JSON temporários
+messages.json
+users.json
+seminovos.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+
 trash/

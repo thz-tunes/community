@@ -1,4 +1,4 @@
-// config.js - Adicione este arquivo na raiz do seu frontend
+// config.js - Configuração do Frontend
 
 const config = {
   development: {
@@ -6,8 +6,8 @@ const config = {
     SOCKET_URL: 'http://localhost:5000'
   },
   production: {
-    API_URL: 'https://seu-app-backend.up.railway.app', // Você vai substituir isso depois
-    SOCKET_URL: 'https://seu-app-backend.up.railway.app'
+    API_URL: 'https://community-production-5ff9.up.railway.app',
+    SOCKET_URL: 'https://community-production-5ff9.up.railway.app'
   }
 };
 
@@ -22,3 +22,4 @@ window.APP_CONFIG = currentConfig;
 
 console.log('🔧 Ambiente detectado:', isDevelopment ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
 console.log('🌐 API URL:', currentConfig.API_URL);
+console.log('💬 Socket URL:', currentConfig.SOCKET_URL);
